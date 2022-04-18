@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+	<meta charset="utf-8">
+
+	<title>ChatApp</title>
+</head>
+<body class="chat">
+		<form id='message-form' method="post" action="http://localhost:3000/api/auth/admin/login">
+		<!-- <input name='message' type="text"placeholder="Message"
+				autofocus autocomplete="off"/> -->
+
+        <!-- email and password -->
+        <input name='email' type="text" placeholder="Email" autofocus autocomplete="off"/>
+        <input name='password' type="password" placeholder="Password" autocomplete="off"/>
+        
+		<button >Send</button>
+		</form>
+
+<!-- <script src="/socket.io/socket.io.js"></script> -->
+
+<!-- <script src="https://cdn.socket.io/socket.io-1.0.0.js"></script>
+<script>
+    var socket = io();
+    socket.on('connect', function(data) {
+        socket.emit('joined', 'Hello World from client');
+    });
+    socket.on('acknowledge', function(data) {
+        alert(data);
+    });
+    $('form').submit(function(){
+        socket.emit('chat message', $('#m').val());
+        $('#messages').append($('<li>').text($('#m').val()));
+        $('#m').val('');
+        return false;
+    });
+    socket.on('response message', function(data) {
+        $('#messages').append($('<li>').text(data));
+    });
+</script> -->
+</body>
+</html>
