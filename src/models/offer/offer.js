@@ -2,6 +2,9 @@ var mongoose = require('mongoose');
 
 const offerSchema = new mongoose.Schema(
   {
+    image:{
+      type: String,
+    },
     title: {
       type: String,
     },
