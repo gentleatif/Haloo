@@ -491,4 +491,47 @@ router.put("/" ,async function(req,res){
     // }
 });
 
+router.put("/block" , async function(req,res){ 
+    if (!req.query._id){
+        return res.send({error: "Please provide an id", field:"_id"});
+    }
+
+    var _id = req.query._id;
+
+    // blockreason
+    if (!req.body.blockReason){
+        return res.send({error: "Please provide a blockReason", field:"blockReason"});
+    }
+
+
+    // data = await Customer.findOne({
+    //     _id: _id
+    // });
+    console.log(_id);
+
+    await Customer.updateOne({_id:_id}, {$set: {block: true, blockReason: req.body.blockReason}});
+
+    return res.sendStatus(200);
+});
+
+// unblock
+router.put("/unblock" , async function(req,res){
+    if (!req.query._id){
+        return res.send({error: "Please provide an id", field:"_id"});
+    }
+
+    var _id = req.query._id;
+
+
+    data = await Customer.findOne({
+        _id: _id
+    });
+
+    await Customer.updateOne({_id:_id}, {$set: {block: false, blockReason: ''}});
+
+    return res.sendStatus(200);
+});
+   
+
+
 module.exports = router;

@@ -6,6 +6,7 @@ const fs = require('fs');
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 const Category = require('../../models/service_info/category');
+const SubCategory = require('../../models/service_info/sub_category');
 const State = require('../../models/service_info/state');
 const City = require('../../models/service_info/city');
 
@@ -28,9 +29,17 @@ router.get('/',async (req,res) =>{
         let pending_job = await Job.find({status: 'pending'});
         total_pending_job = pending_job.length;
 
+        // cancelled job
+        let cancelled_job = await Job.find({status: 'cancelled'});
+        total_cancelled_job = cancelled_job.length;
+
         //  total categories
         let categories = await Category.find({});
         total_categories = categories.length;
+
+        //  total sub categories
+        let sub_categories = await SubCategory.find({});
+        total_sub_categories = sub_categories.length;
 
         //  total state
         let state = await State.find({});
@@ -66,11 +75,13 @@ router.get('/',async (req,res) =>{
 
         
 
-        res.send({ data: [  {total: total_vendor, title:'Total Vendor'}, 
-                            {total: total_customer, title:'Total Customer'},
-                            {total: completed_job, title:'Completed Job'},
-                            {total: total_pending_job, title:'Pending Job'},
+        res.send({ data: [  {total: total_vendor, title:'Total Vendors'}, 
+                            {total: total_customer, title:'Total Customers'},
+                            {total: completed_job, title:'Completed Jobs'},
+                            {total: total_pending_job, title:'In Progress Jobs'},
+                            {total: total_cancelled_job, title:'Cancelled Jobs'},
                             {total: total_categories, title:'Total Categories'},
+                            {total: total_sub_categories, title:'Total Sub Categories'},
                             {total: total_state, title:'Total State'},
                             {total: total_city, title:'Total City'},
                             {recent_job: recent_job, title:'Recent Job'} 

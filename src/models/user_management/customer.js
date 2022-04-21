@@ -90,7 +90,14 @@ const customerSchema = new mongoose.Schema({
     },
     socketId: {
         type: String,
-    }
+    },
+    block: {
+        type: Boolean,
+        default: false,
+    },
+    blockReason: {
+        type: String,
+    },
   },
     {
       timestamps: true

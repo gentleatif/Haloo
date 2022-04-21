@@ -27,6 +27,12 @@ router.post('/generate_otp', async (req,res) =>{
     console.log('customer', customer);
 
     if (customer) {
+        // check block
+        if (customer.block) {
+            return res.status(400).send({error: 'Your account is blocked by admin', field: 'phone'});
+        }
+
+
         otp = generate_otp(4);
         customer.otp = otp;
         customer.otpExpiry = Date.now() + (2 * 60 * 1000);
@@ -60,6 +66,10 @@ router.post("/verify_otp", async (req, res) => {
 
     if (customer) {
 
+        if (customer.block) {
+            return res.status(400).send({error: 'Your account is blocked by admin', field: 'phone'});
+        }
+        
         if (!customer.type) {
             console.log('customer.type', customer.type);
             console.log('type', type);
