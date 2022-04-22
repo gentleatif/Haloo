@@ -78,6 +78,11 @@ var router = require('./src/routes')(razorpayInstance, getIOInstance);
 app.use(router);
 
 
+app.use(express.static('client/build'));
+
+app.get('*', (req, res) => res.sendFile(path.resolve('client', 'build', 'index.html')));
+
+
 var port = process.env.PORT || 3000
 
 const server = app.listen(port, function () {

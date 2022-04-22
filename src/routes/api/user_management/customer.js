@@ -493,14 +493,14 @@ router.put("/" ,async function(req,res){
 
 router.put("/block" , async function(req,res){ 
     if (!req.query._id){
-        return res.send({error: "Please provide an id", field:"_id"});
+        return res.status(400).send({error: "Please provide an id", field:"_id"});
     }
 
     var _id = req.query._id;
 
     // blockreason
     if (!req.body.blockReason){
-        return res.send({error: "Please provide a blockReason", field:"blockReason"});
+        return res.status(400).send({error: "Please provide a blockReason", field:"blockReason"});
     }
 
 
@@ -517,7 +517,7 @@ router.put("/block" , async function(req,res){
 // unblock
 router.put("/unblock" , async function(req,res){
     if (!req.query._id){
-        return res.send({error: "Please provide an id", field:"_id"});
+        return res.status(400).send({error: "Please provide an id", field:"_id"});
     }
 
     var _id = req.query._id;
