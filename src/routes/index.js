@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 
 
-module.exports = function(getIOInstance) {
-    // app.use('/api', require('./api/index.js')(io));
-    router.use('/api', require('./api/index.js')(getIOInstance));
+module.exports = function() {
+
+    router.use('/api', require('./api')());
 
     return router
 }
