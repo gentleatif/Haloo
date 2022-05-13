@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const State = require('../../../models/service_info/state');
+const State = require('../../../../models/service_info/state');
 
 router.get('/', async (req, res) => {
   console.log('Got query:', req.query);

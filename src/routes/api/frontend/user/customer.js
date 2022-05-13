@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const Customer = require('../../../../models/user_management/customer');
+const Customer = require('../../../models/user_management/customer');
 const fs = require('fs');
-const upload = require('../../../../controller/multer').single('profileImage');
+const upload = require('../../../controller/multer').single('profileImage');
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 const multer = require('multer');
@@ -19,7 +19,7 @@ router.get('/',async (req,res) =>{
         }
 
         if (req.user._id) {
-            req.user._id = ObjectId(req.user._id) 
+            req.user._id = ObjectId(req.user._id)
         }
         try {
             // data = await Customer.find(findQuery);
@@ -76,7 +76,7 @@ router.get('/',async (req,res) =>{
                         "as": "reviewDetails"
                     }
                 },
-                { 
+                {
                     $addFields: {noOfJobs: {$size: "$jobDetails"}}
                 },
                 {
@@ -89,7 +89,7 @@ router.get('/',async (req,res) =>{
             if(data[0].jobSkills && data[0].jobSkills.length > 0){
                 data[0].jobSkills.forEach(element => {
                     //  check for Active
-                    if(element.status == 'Active'){                        
+                    if(element.status == 'Active'){
                         jobSkills.push(element.categoryName);
                     }
                 });
@@ -108,7 +108,7 @@ router.get('/',async (req,res) =>{
                 data[0].cityDetails = data[0].cityDetails[0];
             }
 
-                
+
 
             // forloop in customer check for profile image exist from path
             for(let i=0; i<data.length; i++){
@@ -129,7 +129,7 @@ router.get('/',async (req,res) =>{
             res.send({data:data});
         }   catch (error) {
             console.log(error);
-            res.status(400).send({error: error}); 
+            res.status(400).send({error: error});
         }
     }else{
         res.status(400).send({error:'Invalid login type'});
@@ -143,21 +143,21 @@ router.get('/',async (req,res) =>{
 //     try{
 //         var {
 //             companyName,
-//             customerName, 
-//             emailAddress, 
+//             customerName,
+//             emailAddress,
 //             firstName,
 //             lastName,
 //             type,
-//             phone, 
-//             ageBracket, 
-//             noOfJobs, 
-//             address, 
-//             city, 
-//             state, 
-//             pincode, 
-//             averageRating, 
-//             lastAccessOn, 
-//             codStatus, 
+//             phone,
+//             ageBracket,
+//             noOfJobs,
+//             address,
+//             city,
+//             state,
+//             pincode,
+//             averageRating,
+//             lastAccessOn,
+//             codStatus,
 //             status } = req.body;
 
 //         var profileImage;
@@ -167,29 +167,29 @@ router.get('/',async (req,res) =>{
 
 //         var newCustomer = new Customer({
 //             companyName,
-//             customerName, 
-//             emailAddress, 
+//             customerName,
+//             emailAddress,
 //             firstName,
 //             lastName,
 //             type,
-//             phone, 
-//             ageBracket, 
-//             noOfJobs, 
-//             address, 
-//             city, 
-//             state, 
-//             pincode, 
-//             averageRating, 
-//             lastAccessOn, 
-//             codStatus, 
+//             phone,
+//             ageBracket,
+//             noOfJobs,
+//             address,
+//             city,
+//             state,
+//             pincode,
+//             averageRating,
+//             lastAccessOn,
+//             codStatus,
 //             status });
-        
+
 //         await newCustomer.save();
 
 //         return res.status(200).send('ok');
 //     } catch (error) {
 //         console.log(error);
-//         return res.status(400).send(error); 
+//         return res.status(400).send(error);
 //     }
 // })
 
@@ -198,17 +198,17 @@ router.delete("/" ,async function(req,res){
     // console.log('Got body:', req.body);
     var _id = req.user._id;
 
-    
+
     if (req.user.loginType != 'user'){
-       return res.status(400).send({ error:'Invalid login type' });
+        return res.status(400).send({ error:'Invalid login type' });
     }
     if(!_id){
         return res.status(400).send('Unable to get id from token please relogin');
-    
+
     }else{
         //  remove element by id
         Customer.findOneAndDelete({_id:_id})
-        .then((item) => {
+            .then((item) => {
                 if (item.profileImage) {
                     fs.unlink(item.profileImage, (err) => {
                         if (err) console.log(err);;
@@ -216,10 +216,10 @@ router.delete("/" ,async function(req,res){
                     });
                 }
                 res.sendStatus(200);
-        }).catch((error) => {
+            }).catch((error) => {
             //error handle
             console.log(error);
-            res.status(400).send({error: error});    
+            res.status(400).send({error: error});
         });
     }
 });
@@ -245,19 +245,19 @@ router.put("/" ,async function(req,res){
 
     upload(req, res, async function (err) {
         if (err instanceof multer.MulterError) {
-          // A Multer error occurred when uploading.
-          console.log('A Multer error occurred when uploading.');
-          console.log(err);
-          return res.status(400).send({error: err.message, field: 'profileImage'});
-        //   return res.status(400).send({error: 'Only .png, .jpg and .jpeg format allowed with maxsize 1Mb!', field: 'profileImage'});
+            // A Multer error occurred when uploading.
+            console.log('A Multer error occurred when uploading.');
+            console.log(err);
+            return res.status(400).send({error: err.message, field: 'profileImage'});
+            //   return res.status(400).send({error: 'Only .png, .jpg and .jpeg format allowed with maxsize 1Mb!', field: 'profileImage'});
         } else if (err) {
-          // An unknown error occurred when uploading.
-          console.log('A Multer error occurred when uploading.');
-          console.log("err",err);
-          return res.status(400).send({error: err.message, field: 'profileImage'});
-        //   return res.status(400).send({error: 'Only .png, .jpg and .jpeg format allowed with maxsize 1Mb!', field: 'profileImage'});
+            // An unknown error occurred when uploading.
+            console.log('A Multer error occurred when uploading.');
+            console.log("err",err);
+            return res.status(400).send({error: err.message, field: 'profileImage'});
+            //   return res.status(400).send({error: 'Only .png, .jpg and .jpeg format allowed with maxsize 1Mb!', field: 'profileImage'});
         }
-       
+
         console.log(req.file)
         console.log('Got query:', req.query);
         console.log('Got body:', req.body);
@@ -279,8 +279,8 @@ router.put("/" ,async function(req,res){
         //         return res.status(400).send({error:'Invalid phone'});
         //     }
         // }
-        
-        
+
+
         // check type
         if(req.body.type){
             var type = req.body.type;
@@ -301,7 +301,7 @@ router.put("/" ,async function(req,res){
             if(!Array.isArray(jobSkills)){
                 return res.status(400).send({error:'Invalid jobSkills (array)', field: 'jobSkills'});
             }
-            // check jobSkills contain type mongodbId   
+            // check jobSkills contain type mongodbId
             console.log('jobSkills', jobSkills);
             for(var i=0; i<jobSkills.length; i++){
                 if(!mongoose.Types.ObjectId.isValid(jobSkills[i])){
@@ -325,24 +325,24 @@ router.put("/" ,async function(req,res){
         if (req.body.cityId && !ObjectId.isValid(req.body.cityId)) {
             return res.status(400).send({ error: 'Invalid cityId', field: 'cityId' });
         }
-        
+
 
         var profileImages
         console.log(req.file);
         if (req.file) {
             req.body.profileImage = 'uploads/images/' + req.file.filename;
             if (data.profileImage) {
-                    fs.unlink(data.profileImage, (err) => {
-                        if (err) {
-                            console.log(err);
-                        };
-                        console.log({data:'successfully deleted profileImage'});
-                    });
-                
+                fs.unlink(data.profileImage, (err) => {
+                    if (err) {
+                        console.log(err);
+                    };
+                    console.log({data:'successfully deleted profileImage'});
+                });
+
             }
-            
+
         }
-        
+
         var update_query = { };
         if(req.body.customerName && req.body.customerName != data.customerName){
             update_query.customerName = req.body.customerName;
@@ -405,12 +405,12 @@ router.put("/" ,async function(req,res){
 
         //  update element in mongodb put
         Customer.updateOne({_id:_id}, {$set: update_query})
-        .then((item) => {
-            return res.sendStatus(200);
-        }).catch((error) => {
+            .then((item) => {
+                return res.sendStatus(200);
+            }).catch((error) => {
             //error handle
             console.log(error);
-            return res.status(400).send({error: error});       
+            return res.status(400).send({error: error});
         });
         // }
     });

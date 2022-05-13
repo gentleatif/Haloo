@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const Customer = require('../../../models/user_management/customer');
+const Customer = require('../../../../models/user_management/customer');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = process.env;
-const generate_otp = require('../../../utils/generate_otp');
-const auth = require('../../../middleware/auth');
+const generate_otp = require('../../../../utils/generate_otp');
+const auth = require('../../../../middleware/auth');
 
 router.post('/generate_otp', async (req,res) =>{
     console.log('Got query:', req.query);

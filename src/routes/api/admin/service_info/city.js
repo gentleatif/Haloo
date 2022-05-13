@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const City = require('../../../models/service_info/city');
-const State = require('../../../models/service_info/state');
+const City = require('../../../../models/service_info/city');
+const State = require('../../../../models/service_info/state');
 const ObjectId = require('mongoose').Types.ObjectId;
 
 router.get('/', async (req, res) => {

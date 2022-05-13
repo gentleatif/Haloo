@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const Admin = require('../../../models/user_management/admin');
+const Admin = require('../../../../models/user_management/admin');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const upload = require('../../../controller/multer');
-const AdminReport = require('../../../models/report/admin_report');
-const generate_otp = require('../../../utils/generate_otp');
+const upload = require('../../../../controller/multer');
+const AdminReport = require('../../../../models/report/admin_report');
+const generate_otp = require('../../../../utils/generate_otp');
 const nodemailer = require('nodemailer');
-const auth = require('../../../middleware/auth');
+const auth = require('../../../../middleware/auth');
 const config = process.env;
 
 router.post(

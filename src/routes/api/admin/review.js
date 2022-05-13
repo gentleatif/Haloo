@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Review = require('../../models/review');
+const Review = require('../../../models/review');
 
 router.get("/" ,async function(req,res){
     console.log('Got query:', req.query);

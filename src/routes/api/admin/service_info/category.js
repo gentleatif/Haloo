@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const Category = require('../../../models/service_info/category');
+const Category = require('../../../../models/service_info/category');
 const fs = require('fs');
-const Counter = require('../../../models/utils/counter');
+const Counter = require('../../../../models/utils/counter');
 
-const upload = require('../../../controller/multer');
-const getNextSequence = require('../../../utils/counter');
+const upload = require('../../../../controller/multer');
+const getNextSequence = require('../../../../utils/counter');
 
 router.get('/', async (req, res) => {
   console.log('Got query:', req.query);

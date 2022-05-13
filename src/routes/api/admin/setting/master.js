@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Master = require('../../../models/setting/master');
+const Master = require('../../../../models/setting/master');
 const fs = require('fs');
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;

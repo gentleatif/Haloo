@@ -1,21 +1,21 @@
 var mongoose = require('mongoose');
 
 const customerSchema = new mongoose.Schema({
-    customerName: {
-        type: String,
-    },
+    // customerName: {
+    //     type: String,
+    // },
     profileImage: {
         type: String,
     },
     companyName: {
         type: String,
     },
-    // firstName: {
-    //     type: String,
-    // },
-    // lastName: {
-    //     type: String,
-    // },
+    firstName: {
+        type: String,
+    },
+    lastName: {
+        type: String,
+    },
     type: {
         type: String,
         enum : ['customer','vendor'],

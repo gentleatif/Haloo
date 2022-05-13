@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
-const AdminReport = require('../../../models/report/admin_report');
+const AdminReport = require('../../../../models/report/admin_report');
 
 
 router.get('/', async (req, res) => {

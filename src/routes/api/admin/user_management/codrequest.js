@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const CodRequest = require('../../../models/user_management/codrequest');
-const Customer = require('../../../models/user_management/customer');
+const CodRequest = require('../../../../models/user_management/codrequest');
+const Customer = require('../../../../models/user_management/customer');
 
 router.get('/',async (req,res) =>{
     console.log('Got query:', req.query);

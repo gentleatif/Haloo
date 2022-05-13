@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const StaticFile = require('../../models/static_file');
+const StaticFile = require('../../../models/static_file');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 

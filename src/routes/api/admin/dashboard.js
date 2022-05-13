@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const Customer = require('../../models/user_management/customer');
-const Job = require('../../models/job');
+const Customer = require('../../../models/user_management/customer');
+const Job = require('../../../models/job');
 const fs = require('fs');
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
-const Category = require('../../models/service_info/category');
-const SubCategory = require('../../models/service_info/sub_category');
-const State = require('../../models/service_info/state');
-const City = require('../../models/service_info/city');
+const Category = require('../../../models/service_info/category');
+const SubCategory = require('../../../models/service_info/sub_category');
+const State = require('../../../models/service_info/state');
+const City = require('../../../models/service_info/city');
 
 
 router.get('/',async (req,res) =>{

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const CodRequest = require('../../../models/user_management/closerequest');
+const CodRequest = require('../../../../models/user_management/closerequest');
 
 
 router.get('/',async (req,res) =>{

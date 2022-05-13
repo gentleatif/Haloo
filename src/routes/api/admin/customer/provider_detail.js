@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const Customer = require('../../../models/user_management/customer');
+const Customer = require('../../../../models/user_management/customer');
 const fs = require('fs');
-const upload = require('../../../controller/multer');
+const upload = require('../../../../controller/multer');
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
-const Category = require('../../../models/service_info/category');
+const Category = require('../../../../models/service_info/category');
 
 router.get('/provider',async (req,res) =>{
     console.log('user details', req.user);

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const SocialMedia = require('../../../models/setting/social_media');
+const SocialMedia = require('../../../../models/setting/social_media');
 const fs = require('fs');
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;

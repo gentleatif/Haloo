@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const Job = require('../../../models/job');
-const generate_otp = require('../../../utils/generate_otp');
+const Job = require('../../../../models/job');
+const generate_otp = require('../../../../utils/generate_otp');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
-const Customer = require('../../../models/user_management/customer');
+const Customer = require('../../../../models/user_management/customer');
 const socket = require('socket.io');
-const server = require('../../../../server')
+const server = require('../../../../../server')
 
 
 

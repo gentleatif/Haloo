@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const Support = require('../../../models/support/support');
+const Support = require('../../../../models/support/support');
 const fs = require('fs');
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
-const Customer = require('../../../models/user_management/customer');
+const Customer = require('../../../../models/user_management/customer');
 
 router.get('/',async (req,res) =>{
     console.log('Got query:', req.query);
