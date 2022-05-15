@@ -97,9 +97,9 @@ router.post('/login', async (req, res) => {
         adminEmail: admin.email,
         adminRole: admin.userRole,
         ipAddress: ip,
-        os: req.useragent.os,
-        platform: req.useragent.platform,
-        browser: req.useragent.browser,
+        // os: req.useragent.os,
+        // platform: req.useragent.platform,
+        // browser: req.useragent.browser,
         adminLoginTime: new Date(),
       });
 

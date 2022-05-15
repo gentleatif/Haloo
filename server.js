@@ -3,7 +3,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const cors = require('cors');
-
+const path = require('path');
 //file import
 const config = require('./config')
 
@@ -51,6 +51,10 @@ app.use((req, res, next) => {
 // Require Route
 const router = require('./src/routes')();
 app.use(router);
+
+app.use(express.static('client/build'));
+
+app.get('*', (req, res) => res.sendFile(path.resolve('client', 'build', 'index.html')));
 
 
 const port = process.env.PORT || 3000;
