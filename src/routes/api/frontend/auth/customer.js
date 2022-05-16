@@ -40,23 +40,25 @@ router.post('/generate_otp', async (req,res) =>{
         customer.otp = otp;
         customer.otpExpiry = Date.now() + (2 * 60 * 1000);
         await customer.save();
-        console.log(otp);
+        console.log('customer', customer);
 
         // send new user if type is not save
         if(!customer.type){
-            return res.send({data:{id:customer._id, newUser:true }});
+            return res.send({data:{id:customer._id }});
         }
-        return res.send({data:{id:customer._id, newUser:false }});
+        return res.send({data:{id:customer._id }});
 
     }else{
         let otp = generate_otp(4);
+        let otpExpiry = Date.now() + (2 * 60 * 100000);
         let customer = new Customer({
             phone,
-            otp
+            otp,
+            otpExpiry,
         });
         await customer.save();
-        console.log(otp);
-        return res.send({data:{id:customer._id , newUser: true }});
+        console.log('customer', customer);
+        return res.send({data:{ id:customer._id }});
     }
 })
 
@@ -64,7 +66,7 @@ router.post('/generate_otp', async (req,res) =>{
 
 router.post("/verify_otp", async (req, res) => {
 
-    let { id, otp, type } = req.body;
+    let { id, otp } = req.body;
 
     if (!id) {
         return res.status(400).send({error: 'Customer id is required', field: 'id'});
@@ -83,14 +85,14 @@ router.post("/verify_otp", async (req, res) => {
             return res.status(400).send({error: 'Your account is blocked by admin', field: 'phone'});
         }
 
-        if (!customer.type) {
-            console.log('customer.type', customer.type);
-            console.log('type', type);
-            if ((!type) || !(type === 'vendor' || type === 'customer')){
-                return res.status(400).send({error:'Type is required (vendor/customer)', field:'type'});
-            }
-            customer.type = type;
-        }
+        // if (!customer.type) {
+        //     console.log('customer.type', customer.type);
+        //     console.log('type', type);
+        //     if ((!type) || !(type === 'vendor' || type === 'customer')){
+        //         return res.status(400).send({error:'Type is required (vendor/customer)', field:'type'});
+        //     }
+        //     customer.type = type;
+        // }
         // check otp generated
         if (!(customer.otp || customer.otpExpiry)) {
             return res.status(400).send({error: "OTP not generated"});
@@ -108,7 +110,11 @@ router.post("/verify_otp", async (req, res) => {
             customer.token = jwt.sign({ id: customer._id, loginType:'customer'  }, config.CUSTOMER_LOGIN_SECRET, { expiresIn: '30d' });
 
             await customer.save();
-            return res.send({ data:customer });
+
+            if (!customer.type) {
+                return res.send({ data:customer, newUser: true });
+            }
+            return res.send({ data:customer, newUser: false });
         }else{
             return res.status(400).send({error: "Invalid OTP", field: 'otp'});
         }

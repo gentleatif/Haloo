@@ -45,11 +45,11 @@ const customerSchema = new mongoose.Schema({
 
     averageRating: {
         type: Number,
-        default: 20,
+        // default: 20,
     },
     completedJob: {
         type: Number,
-        default: 10,
+        // default: 10,
     },
     completedProfile:{
         type:   Boolean,
@@ -86,7 +86,7 @@ const customerSchema = new mongoose.Schema({
 
     status: {
         type: String,
-        default: 'Active',
+        default: 'active',
     },
     socketId: {
         type: String,
