@@ -56,7 +56,7 @@ router.post('/generate_otp', async (req,res) =>{
         });
         await customer.save();
         console.log(otp);
-        return res.send({data:{_id:customer._id , newUser: true }});
+        return res.send({data:{id:customer._id , newUser: true }});
     }
 })
 
