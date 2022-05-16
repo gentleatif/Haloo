@@ -66,6 +66,14 @@ router.post("/verify_otp", async (req, res) => {
 
     let { id, otp, type } = req.body;
 
+    if (!id) {
+        return res.status(400).send({error: 'Customer id is required', field: 'id'});
+    }
+
+    if (!otp) {
+        return res.status(400).send({error: 'OTP is required', field: 'otp'});
+    }
+
     let customer = await Customer.findOne({_id:id});
     console.log(customer);
 
