@@ -112,9 +112,9 @@ router.post("/verify_otp", async (req, res) => {
             await customer.save();
 
             if (!customer.type) {
-                return res.send({ data:customer, newUser: true });
+                return res.send({ data: { customer, newUser: true }});
             }
-            return res.send({ data:customer, newUser: false });
+            return res.send({ data: { customer, newUser: false }});
         }else{
             return res.status(400).send({error: "Invalid OTP", field: 'otp'});
         }
