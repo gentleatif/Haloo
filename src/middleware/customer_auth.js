@@ -24,6 +24,7 @@ const verifyToken = (req, res, next) => {
             if (err) {
                 return res.status(403).send({error:"Server error"});
             }
+            console.log("customer", customer);
             if (!customer) {
                 return res.status(403).send({error:"Customer not found"});
             }
@@ -34,11 +35,12 @@ const verifyToken = (req, res, next) => {
             if (customer.block) {
                 return res.status(403).send({error:"Your account has been blocked by the admin"});
             }
-            console.log("customer", customer);
+
             req.customer = customer;
             next();
         });
     } catch (err) {
+        console.log("err", err);
         return res.status(401).send({error:"Invalid Token"});
     }
 };
