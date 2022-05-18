@@ -317,6 +317,15 @@ router.put("/" ,async function(req,res){
 
         }
 
+        //validate emailAddress
+        if(req.body.emailAddress){
+            let emailAddress = req.body.emailAddress;
+            let emailAddressRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            if(!emailAddressRegex.test(emailAddress)){
+                return res.status(400).send({error:'Invalid emailAddress', field: 'emailAddress'});
+            }
+        }
+
         let update_query = { };
         if(req.body.customerName && req.body.customerName !== customer.customerName){
             update_query.customerName = req.body.customerName;
@@ -361,6 +370,19 @@ router.put("/" ,async function(req,res){
         if(req.body.companyName && req.body.companyName !== customer.companyName){
             update_query.companyName = req.body.companyName;
         }
+
+        if(req.body.firstName && req.body.firstName !== customer.firstName){
+            update_query.firstName = req.body.firstName;
+        }
+
+        if(req.body.lastName && req.body.lastName !== customer.lastName){
+            update_query.lastName = req.body.lastName;
+        }
+
+        if(req.body.emailAddress && req.body.emailAddress !== customer.emailAddress){
+            update_query.emailAddress = req.body.emailAddress;
+        }
+
 
         // if(req.body.stateId && req.body.stateId != data.stateId){
         //     update_query.stateId = req.body.stateId;

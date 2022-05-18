@@ -24,9 +24,9 @@ const customerSchema = new mongoose.Schema({
             type: Boolean,
             default: true,
         },
-        // emailAddress: {
-        //     type: String,
-        // },
+        emailAddress: {
+            type: String,
+        },
         cityId: {
             type: mongoose.Schema.Types.ObjectId, ref: 'cities'
         },
