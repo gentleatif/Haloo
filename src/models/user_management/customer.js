@@ -65,6 +65,12 @@ const customerSchema = new mongoose.Schema({
                 pincode: Number,
                 City: String,
                 State: String,
+                cityId: {
+                    type: mongoose.Schema.Types.ObjectId, ref: 'cities'
+                },
+                stateId: {
+                    type: mongoose.Schema.Types.ObjectId, ref: 'states'
+                },
                 addressType: String,
             }
         ],
