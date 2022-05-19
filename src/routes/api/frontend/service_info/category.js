@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
     console.log('Got query:', req.query);
 
     try {
-        // console.log('findQuery:', findQuery);
+        // console.og('findQuery:', findQuery);
         data = await Category.find(req.query);
         res.send({ data: data });
     } catch (error) {
@@ -48,6 +48,7 @@ router.post('/', async (req, res) => {
         const status = req.body.status;
 
         let categoryImage;
+        console.log('Got file:', req.file);
         if (req.file) {
             categoryImage = 'uploads/images/categoryImage/' + req.file.filename;
         }
@@ -67,12 +68,13 @@ router.post('/', async (req, res) => {
 
         var seq = await getNextSequence('category');
         console.log('seq:', seq);
-        var item = new Category({ categoryName, sequenceNumber: seq, status });
+        console.log('categoryImage:', categoryImage);
+        var item = new Category({ categoryName, categoryImage, sequenceNumber: seq, status });
 
         item
             .save(item)
             .then(function (item) {
-                console.log(item);
+                // console.log(item);
                 res.sendStatus(200);
             })
             .catch((error) => {
