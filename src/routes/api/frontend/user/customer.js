@@ -422,15 +422,15 @@ router.put("/addaddress" ,async function(req,res){
     console.log('Got query:', req.query);
     console.log('Got body:', req.body);
 
-    //first name
-    if(!req.body.firstName){
-        return res.status(400).send({error: 'firstName is required', field: 'firstName'});
-    }
-
-    //last name
-    if(!req.body.lastName){
-        return res.status(400).send({error: 'lastName is required', field: 'lastName'});
-    }
+    // //first name
+    // if(!req.body.firstName){
+    //     return res.status(400).send({error: 'firstName is required', field: 'firstName'});
+    // }
+    //
+    // //last name
+    // if(!req.body.lastName){
+    //     return res.status(400).send({error: 'lastName is required', field: 'lastName'});
+    // }
 
     // blockNo
     if(!req.body.blockNo){
@@ -490,6 +490,49 @@ router.put("/addaddress" ,async function(req,res){
         return res.status(400).send({error: error});
     });
 });
+
+
+//update address
+router.put("/updateaddress" ,async function(req,res) {
+
+    console.log('user details', req.customer);
+    let _id = req.customer._id;
+
+    console.log('Got query:', req.query);
+    console.log('Got body:', req.body);
+
+    // validate Object id in req.query
+    if (!req.query.addressId || !mongoose.Types.ObjectId.isValid(req.query.addressId)) {
+        return res.status(400).send({error: 'Invalid addressId', field: 'addressId'});
+    }
+
+
+
+    let updateObj = {$set: {}};
+    for(let param in req.body) {
+        if (param === 'firstName' || param === 'lastName' || param === 'blockNo' || param === 'apartment' || param === 'nearbyLandmark' || param === 'pincode' || param === 'city' || param === 'state' || param === 'addressType') {
+            updateObj.$set['address.$.'+param] = req.body[param];
+        }
+    }
+
+    console.log('updateObj', updateObj);
+
+
+
+
+    // update array element
+    Customer.updateOne({'_id':_id, "address._id": req.query.addressId }, updateObj )
+        .then((item) => {
+            return res.sendStatus(200);
+        }).catch((error) => {
+        //error handle
+        console.log(error);
+        return res.status(400).send({error: error});
+    });
+});
+
+
+
 
 router.delete("/deleteaddress" ,async function(req,res){
 
