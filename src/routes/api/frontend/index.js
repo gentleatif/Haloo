@@ -6,5 +6,6 @@ module.exports = function() {
     router.use('/auth', require('./auth')());
     router.use('/user',customer_auth, require('./user')());
     router.use('/serviceinfo',customer_auth, require('./service_info')());
+    router.use('/offer',customer_auth, require('./offer')());
     return router
 }

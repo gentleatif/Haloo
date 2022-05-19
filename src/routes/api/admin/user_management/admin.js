@@ -4,7 +4,7 @@ const Admin = require('../../../../models/user_management/admin');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
-const upload = require('../../../../controller/multer');
+const upload = require('../../../../middleware/multer');
 
 router.get('/', async (req, res) => {
   console.log('Got query:', req.query);

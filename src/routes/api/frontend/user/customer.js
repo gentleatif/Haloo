@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Customer = require('../../../../models/user_management/customer');
 const fs = require('fs');
-const upload = require('../../../../controller/multer').single('profileImage');
+const upload = require('../../../../middleware/multer').single('profileImage');
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 const multer = require('multer');
@@ -304,7 +304,7 @@ router.put("/" ,async function(req,res){
         let profileImages
         console.log(req.file);
         if (req.file) {
-            req.body.profileImage = 'uploads/images/' + req.file.filename;
+            req.body.profileImage = 'uploads/images/profileImage/' + req.file.filename;
             if (req.customer.profileImage) {
                 fs.unlink(req.customer.profileImage, (err) => {
                     if (err) {
@@ -353,6 +353,7 @@ router.put("/" ,async function(req,res){
 
         if(req.body.profileImage){
             update_query.profileImage = req.body.profileImage;
+            console.log('profileImage', update_query.profileImage);
         }
 
         // if(req.body.address && req.body.address != data.address){

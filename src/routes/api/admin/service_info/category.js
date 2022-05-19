@@ -4,7 +4,7 @@ const Category = require('../../../../models/service_info/category');
 const fs = require('fs');
 const Counter = require('../../../../models/utils/counter');
 
-const upload = require('../../../../controller/multer');
+const upload = require('../../../../middleware/multer');
 const getNextSequence = require('../../../../utils/counter');
 
 router.get('/', async (req, res) => {

@@ -3,7 +3,7 @@ const fs = require('fs');
 const router = express.Router();
 const SubCategory = require('../../../../models/service_info/sub_category');
 const Category = require('../../../../models/service_info/category');
-const upload = require('../../../../controller/multer');
+const upload = require('../../../../middleware/multer');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 

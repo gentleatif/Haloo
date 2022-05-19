@@ -7,15 +7,15 @@ const categorySchema = new mongoose.Schema({
     sequenceNumber: {
         type: Number,
     },
-    // image: {
-    //   type: String,
-    // },
+    categoryImage: {
+      type: String,
+    },
     // hoverImage: {
     //   type: String,
     // },
     status: {
       type: String,
-      default: 'Active',
+      default: 'active',
     },
   },
   {

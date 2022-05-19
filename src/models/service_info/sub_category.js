@@ -7,7 +7,7 @@ const subCategorySchema = new mongoose.Schema({
     parentCategoryId: {
         type: mongoose.Schema.Types.ObjectId, ref: 'category'
     },
-    image: {
+    subCategoryImage: {
       type: String,
     },
     sequenceNumber: {
@@ -15,6 +15,11 @@ const subCategorySchema = new mongoose.Schema({
     },
     status: {
       type: String,
+      enum: ['active', 'inactive'],
+      default: 'active',
+    },
+    price: {
+      type: Number,
     },
   },
     {
