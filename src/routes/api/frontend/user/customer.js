@@ -267,6 +267,7 @@ router.put("/" ,async function(req,res){
                 return res.status(400).send({error:'Invalid online (true/false)', field: 'online'});
             }
         }
+
         // check jobskills
         if(req.body.jobSkills){
             var jobSkills = req.body.jobSkills;
@@ -384,6 +385,14 @@ router.put("/" ,async function(req,res){
             update_query.emailAddress = req.body.emailAddress;
         }
 
+        if(req.body.formStep && req.body.formStep !== customer.formStep){
+            update_query.formStep = req.body.formStep;
+        }
+
+        if(req.body.completedProfile && req.body.completedProfile !== customer.completedProfile){
+            update_query.completedProfile = req.body.completedProfile;
+        }
+
 
         // if(req.body.stateId && req.body.stateId != data.stateId){
         //     update_query.stateId = req.body.stateId;
@@ -397,7 +406,6 @@ router.put("/" ,async function(req,res){
         //     update_query.countryCode = req.body.countryCode;
         // }
 
-        update_query.completedProfile = true;
 
 
         //  update element in mongodb put
@@ -466,7 +474,7 @@ router.put("/addaddress" ,async function(req,res){
         return res.status(400).send({error: 'state is required', field: 'state'});
     }
 
-    let { firstName, lastName, blockNo, apartment, nearbyLandmark, pincode, city, state, addressType } = req.body;
+    let { firstName, lastName, blockNo, apartment, nearbyLandmark, pincode, city, state, addressType, completedProfile, formStep } = req.body;
 
     let newObject = {
         firstName,
@@ -479,10 +487,9 @@ router.put("/addaddress" ,async function(req,res){
         state,
         addressType,
     };
-    //  update element in mongodb put
-    Customer.updateOne({_id:_id}, { $push: { 'address' :
-            newObject
-    }})
+
+    // update formStep completedProfile in mongodb
+    Customer.updateOne({_id:_id}, {$push: {address: newObject}, $set: {formStep, completedProfile}})
         .then((item) => {
             return res.sendStatus(200);
         }).catch((error) => {
@@ -518,11 +525,14 @@ router.put("/updateaddress" ,async function(req,res) {
 
     console.log('updateObj', updateObj);
 
-
+    let { completedProfile, formStep } = req.body;
 
 
     // update array element
-    Customer.updateOne({'_id':_id, "address._id": req.query.addressId }, updateObj )
+    Customer.updateOne({'_id':_id, "address._id": req.query.addressId }, {
+        ...updateObj,
+        $set: {formStep, completedProfile}
+    } )
         .then((item) => {
             return res.sendStatus(200);
         }).catch((error) => {

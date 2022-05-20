@@ -55,6 +55,10 @@ const customerSchema = new mongoose.Schema({
             type: Boolean,
             default: false
         },
+        formStep: {
+            type: Number,
+            default: 0
+        },
         address: [
             {
                 firstName: String,

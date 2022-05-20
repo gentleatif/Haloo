@@ -52,9 +52,9 @@ app.use((req, res, next) => {
 const router = require('./src/routes')();
 app.use(router);
 
-app.use(express.static('client/build'));
+// app.use(express.static('client/build'));
 
-app.get('*', (req, res) => res.sendFile(path.resolve('client', 'build', 'index.html')));
+// app.get('*', (req, res) => res.sendFile(path.resolve('client', 'build', 'index.html')));
 
 
 const port = process.env.PORT || 3000;

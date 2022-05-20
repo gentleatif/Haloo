@@ -27,6 +27,11 @@ router.get('/',async (req,res) =>{
         req.query._id = ObjectId(req.query._id)
     }
 
+    if (req.query.parentCategoryId) {
+        req.query.parentCategoryId = ObjectId(req.query.parentCategoryId)
+    }
+
+
     try {
         // movedb lookup to get reference data
         data = await SubCategory.aggregate([
@@ -95,7 +100,7 @@ router.post('/', async (req,res) =>{
             res.send({error: "Parent category does not exist", field: 'parentCategoryId'});
         } else {
 
-            var item = new SubCategory({category, parentCategoryId, subCategoryImage, sequenceNumber, status});
+            var item = new SubCategory({category, parentCategoryId, subCategoryImage, price, sequenceNumber, status});
 
             item.save(item)
                 .then(function (item) {
