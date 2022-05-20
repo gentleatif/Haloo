@@ -479,7 +479,7 @@ router.put('/upload-image', (req, res) => {
                     if (err) {
                         console.log(err);
                     };
-                    console.log({data:'successfully deleted profileImage'});
+                    console.log({data:'successfully deleted addressProofImage'});
                 });
 
             }
@@ -493,7 +493,7 @@ router.put('/upload-image', (req, res) => {
                     if (err) {
                         console.log(err);
                     };
-                    console.log({data:'successfully deleted profileImage'});
+                    console.log({data:'successfully deleted certificateProofImage'});
                 });
 
             }

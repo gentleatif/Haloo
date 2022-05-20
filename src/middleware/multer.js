@@ -53,8 +53,10 @@ var upload = multer({
 
       if (validImageExtensions.indexOf(ext.substring(1)) === -1) {
         cb(null, false);
+        console.log("invalid extension");
         return cb(new Error("Only " + validImageExtensions + " are allowed with maxsize 1MB"));
       }else{
+        console.log("valid extension");
         cb(null, true);
       }
 

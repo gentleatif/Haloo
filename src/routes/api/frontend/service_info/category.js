@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Category = require('../../../../models/service_info/category');
+const subCategory = require('../../../../models/service_info/sub_category');
 const fs = require('fs');
 const Counter = require('../../../../models/utils/counter');
 const getNextSequence = require('../../../../utils/counter');
@@ -14,8 +15,24 @@ router.get('/', async (req, res) => {
 
     try {
         // console.og('findQuery:', findQuery);
-        data = await Category.find(req.query);
-        res.send({ data: data });
+        let resType = req.query.type;
+        if (resType === 'all') {
+            console.log('resType:', resType);
+            // get all subcataegories group by category
+            // const categories = await subCategory.find({});
+            const categories = await subCategory.aggregate([
+                { $group : { _id : "$parentCategoryId", category: { $push: "$$ROOT" } } }
+            ])
+
+
+
+
+            res.send({ data: categories });
+        } else {
+
+            data = await Category.find(req.query);
+            res.send({data: data});
+        }
     } catch (error) {
         console.log(error);
         res.status(400).send({ error: 'server error occur' });

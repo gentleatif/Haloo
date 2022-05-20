@@ -12,8 +12,11 @@ router.get('/', async (req, res) => {
 
   try {
     // console.log('findQuery:', findQuery);
-    data = await Category.find(req.query);
-    res.send({ data: data });
+    let resType = req.query.type;
+    console.log('resType:', resType);
+
+      data = await Category.find(req.query);
+      res.send({ data: data });
   } catch (error) {
     console.log(error);
     res.status(400).send({ error: 'server error occur' });
