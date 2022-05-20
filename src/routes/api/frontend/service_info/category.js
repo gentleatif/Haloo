@@ -21,7 +21,27 @@ router.get('/', async (req, res) => {
             // get all subcataegories group by category
             // const categories = await subCategory.find({});
             const categories = await subCategory.aggregate([
-                { $group : { _id : "$parentCategoryId", category: { $push: "$$ROOT" } } }
+                { $group : { _id : "$parentCategoryId", category: { $push: "$$ROOT" } } },
+
+                //    second stage
+                // add field parent category detail from category model
+                {
+                    $lookup: {
+                        from: 'categories',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'parentCategoryDetails'
+                    }
+                },
+                // {
+                //     $project: {
+                //         "_id": 1,
+                //         "campId": 1,
+                //         "articleId": 1,
+                //         "parentCategoryDetails._id": 1,
+                //         "parentCategoryDetails.categoryName": 1,
+                //     }
+                // }
             ])
 
 
