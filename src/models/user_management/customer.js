@@ -55,6 +55,13 @@ const customerSchema = new mongoose.Schema({
             type: Boolean,
             default: false
         },
+        addressProofImage: {
+            type: String,
+        },
+        certificateImage: {
+            type: String,
+        },
+
         formStep: {
             type: Number,
             default: 0

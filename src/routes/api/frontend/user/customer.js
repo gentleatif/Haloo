@@ -3,6 +3,7 @@ const router = express.Router();
 const Customer = require('../../../../models/user_management/customer');
 const fs = require('fs');
 const upload = require('../../../../middleware/multer').single('profileImage');
+const uploadMultiple = require('../../../../middleware/multer').fields([{ name: 'certificateImage', maxCount: 1 }, { name: 'addressProofImage', maxCount: 1 }]);
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 const multer = require('multer');
@@ -420,6 +421,96 @@ router.put("/" ,async function(req,res){
         // }
     });
 });
+
+
+
+// route to upload address proof and certificate proof image multter
+router.put('/upload-image', (req, res) => {
+
+    console.log('upload-image', req.body);
+    uploadMultiple(req, res, async function (err) {
+        if (err instanceof multer.MulterError) {
+            // A Multer error occurred when uploading.
+            console.log('A Multer error occurred when uploading.');
+            console.log(err);
+            return res.status(400).send({error: err.message, field: 'profileImage'});
+            //   return res.status(400).send({error: 'Only .png, .jpg and .jpeg format allowed with maxsize 1Mb!', field: 'profileImage'});
+        } else if (err) {
+            // An unknown error occurred when uploading.
+            console.log('A Multer error occurred when uploading.');
+            console.log("err", err);
+            return res.status(400).send({error: err.message, field: 'profileImage'});
+            //   return res.status(400).send({error: 'Only .png, .jpg and .jpeg format allowed with maxsize 1Mb!', field: 'profileImage'});
+        }
+
+
+        console.log('user details', req.user);
+        let _id = req.customer._id;
+        let customer = req.customer;
+
+
+        console.log(req.file)
+        console.log('Got query:', req.query);
+        console.log('Got body:', req.body);
+
+        let update_query = {};
+
+        if(req.body.formStep && req.body.formStep !== customer.formStep){
+            update_query.formStep = req.body.formStep;
+        }
+
+        if(req.body.completedProfile && req.body.completedProfile !== customer.completedProfile){
+            update_query.completedProfile = req.body.completedProfile;
+        }
+
+
+        console.log(req.files);
+        // if (req.file && req.file.length > 0) {
+        //     req.body.profileImage = 'uploads/images/profileImage/' + req.file.filename;
+        // }
+        // log file name from field
+
+
+        if (req.files && req.files.addressProofImage){
+            update_query.addressProofImage = 'uploads/images/addressProofImage/' + req.files.addressProofImage[0].filename;
+        //    delete old file
+            if (req.customer.addressProofImage) {
+                fs.unlink(req.customer.addressProofImage, (err) => {
+                    if (err) {
+                        console.log(err);
+                    };
+                    console.log({data:'successfully deleted profileImage'});
+                });
+
+            }
+        }
+
+        if (req.files && req.files.certificateProofImage){
+            update_query.certificateProofImage = 'uploads/images/certificateProofImage/' + req.files.certificateProofImage[0].filename;
+        //    delete old file
+            if (req.customer.certificateProofImage) {
+                fs.unlink(req.customer.certificateProofImage, (err) => {
+                    if (err) {
+                        console.log(err);
+                    };
+                    console.log({data:'successfully deleted profileImage'});
+                });
+
+            }
+        }
+
+    //    save to mongodb
+        Customer.updateOne({_id:_id}, {$set: update_query})
+            .then((item) => {
+                return res.sendStatus(200);
+            }).catch((error) => {
+            //error handle
+            console.log(error);
+            return res.status(400).send({error: error});
+        });
+    });
+});
+
 
 
 router.put("/addaddress" ,async function(req,res){
