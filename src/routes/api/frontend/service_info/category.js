@@ -33,16 +33,22 @@ router.get('/', async (req, res) => {
                         as: 'parentCategoryDetails'
                     }
                 },
-                // {
-                //     $project: {
-                //         "_id": 1,
-                //         "campId": 1,
-                //         "articleId": 1,
-                //         "parentCategoryDetails._id": 1,
-                //         "parentCategoryDetails.categoryName": 1,
-                //     }
-                // }
+                {$unwind: '$parentCategoryDetails'},
+
+                {
+                    $addFields: { categoryName: '$parentCategoryDetails.categoryName' }
+                },
+                {
+                    $project: {
+                        "_id": 1,
+                        "category.price": 1,
+                        "category.category": 1,
+                        "categoryName": 1,
+                    }
+                }
             ])
+
+            // remove ca
 
 
 
