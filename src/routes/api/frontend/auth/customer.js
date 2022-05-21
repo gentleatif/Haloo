@@ -106,8 +106,20 @@ router.post("/verify_otp", async (req, res) => {
             // customer.otp_expiry = Date.now() + (60 * 1000);
             customer.otp = null;
             customer.otpExpiry = null;
+
+            if (customer.token){
+                try{
+                    const decoded = jwt.verify(customer.token, config.CUSTOMER_LOGIN_SECRET);
+                }catch (e) {
+                    console.log(e)
+                    customer.token = jwt.sign({ id: customer._id, loginType:'customer'  }, config.CUSTOMER_LOGIN_SECRET, { expiresIn: '30d' });
+                }
+            }else{
+                customer.token = jwt.sign({ id: customer._id, loginType:'customer'  }, config.CUSTOMER_LOGIN_SECRET, { expiresIn: '30d' });
+            }
+
             // save jws token
-            customer.token = jwt.sign({ id: customer._id, loginType:'customer'  }, config.CUSTOMER_LOGIN_SECRET, { expiresIn: '30d' });
+            // customer.token = jwt.sign({ id: customer._id, loginType:'customer'  }, config.CUSTOMER_LOGIN_SECRET, { expiresIn: '30d' });
 
             await customer.save();
 
