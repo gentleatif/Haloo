@@ -34,25 +34,25 @@ router.get('/',async (req,res) =>{
                     as: 'jobDetails'
                 }
             },
+            // {
+            //     $lookup: {
+            //         from: 'states',
+            //         localField: 'stateId',
+            //         foreignField: '_id',
+            //         as: 'stateDetails'
+            //     }
+            // },
+            // {
+            //     $lookup: {
+            //         from: 'cities',
+            //         localField: 'cityId',
+            //         foreignField: '_id',
+            //         as: 'cityDetails'
+            //     }
+            // },
             {
                 $lookup: {
-                    from: 'states',
-                    localField: 'stateId',
-                    foreignField: '_id',
-                    as: 'stateDetails'
-                }
-            },
-            {
-                $lookup: {
-                    from: 'cities',
-                    localField: 'cityId',
-                    foreignField: '_id',
-                    as: 'cityDetails'
-                }
-            },
-            {
-                $lookup: {
-                    from: 'categories',
+                    from: 'subcategories',
                     localField: 'jobSkills',
                     foreignField: '_id',
                     as: 'jobSkills'
@@ -83,18 +83,18 @@ router.get('/',async (req,res) =>{
             }
         ]);
 
-        let jobSkills = [];
-        console.log('data.jobSkills', data[0].jobSkills);
-        if(data[0].jobSkills && data[0].jobSkills.length > 0){
-            data[0].jobSkills.forEach(element => {
-                //  check for Active
-                if(element.status == 'Active'){
-                    jobSkills.push(element.categoryName);
-                }
-            });
-        }
-        console.log('jobSkills', jobSkills);
-        data[0].jobSkills = jobSkills;
+        // let jobSkills = [];
+        // console.log('data.jobSkills', data[0].jobSkills);
+        // if(data[0].jobSkills && data[0].jobSkills.length > 0){
+        //     data[0].jobSkills.forEach(element => {
+        //         //  check for Active
+        //         if(element.status == 'active'){
+        //             jobSkills.push(element.categoryName);
+        //         }
+        //     });
+        // }
+        // console.log('jobSkills', jobSkills);
+        // data[0].jobSkills = jobSkills;
 
 
         // convert stateDetails array to json
@@ -270,6 +270,7 @@ router.put("/" ,async function(req,res){
         }
 
         // check jobskills
+        console.log('req.body.jobSkills',req.body.jobSkills)
         if(req.body.jobSkills){
             var jobSkills = req.body.jobSkills;
             if(!Array.isArray(jobSkills)){

@@ -108,7 +108,7 @@ const customerSchema = new mongoose.Schema({
             type: String,
         },
         jobSkills: [{
-            type: mongoose.Schema.Types.ObjectId, ref: 'category'
+            type: mongoose.Schema.Types.ObjectId, ref: 'subCategory'
         }],
 
 
