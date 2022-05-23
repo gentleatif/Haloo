@@ -113,6 +113,15 @@ module.exports = function(getIOInstance) {
 
         let { subCategoryId, vendorId, ScheduleTime, address, discount, totalAmount } = req.body;
 
+        //validate totalAmount
+        if (!totalAmount) {
+            return res.status(400).send({ error: 'Please provide totalAmount', field: 'totalAmount' });
+        }
+
+
+
+
+
         let item = new Job({ subCategoryId, vendorId, ScheduleTime, totalAmount, address, otp, discount, customerId: _id });
 
 
@@ -158,7 +167,7 @@ module.exports = function(getIOInstance) {
             res.status(400).send({ error: "Please provide an id", field: '_id' });
         } else {
             //  remove eleemnt id id mongodb
-            Job.remove({ _id: _id, $or: [{ customerId: req.customer._id }, { vendorId: req.customer._id }] })
+            Job.deleteOne({ _id: _id, $or: [{ customerId: req.customer._id }, { vendorId: req.customer._id }] })
                 .then(function(item) {
                     res.sendStatus(200);
                 }).catch((error) => {
@@ -172,11 +181,11 @@ module.exports = function(getIOInstance) {
     router.put("/", async function(req, res) {
         console.log('Got query:', req.query);
         console.log('Got body:', req.body);
-        let _id = req.query._id;
+        let _id = req.query.id;
 
 
         if (!_id) {
-            res.status(400).send({ error: "Please provide an id", field: '_id' });
+            res.status(400).send({ error: "Please provide an id", field: 'id' });
         } else {
             //  update element in mongodb put
             req.customer._id = ObjectId(req.customer._id)
@@ -198,14 +207,18 @@ module.exports = function(getIOInstance) {
     router.put("/acceptjob", async function(req, res) {
         console.log('Got query:', req.query);
         console.log('Got body:', req.body);
-        let _id = req.query._id;
+        let _id = req.query.id;
 
 
         if (!_id) {
-            return res.status(400).send({ error: "Please provide an id", field: '_id' });
+            return res.status(400).send({ error: "Please provide an job id", field: 'id' });
         }
-        //  update element in mongodb put
-        req.customer._id = ObjectId(req.customer._id)
+
+        //check customer type vendor
+        if (req.customer.type != 'vendor') {
+            return res.status(400).send({ error: "You are not a vendor"});
+        }
+
 
 
         Job.updateOne({ _id: _id, vendorId: req.customer._id }, { $set: { status: 'upcoming' } })
@@ -221,7 +234,7 @@ module.exports = function(getIOInstance) {
     router.put("/rejectjob", async function(req, res) {
         console.log('Got query:', req.query);
         console.log('Got body:', req.body);
-        let _id = req.query._id;
+        let _id = req.query.id;
 
         let rejectType = 'customer'
         if (req.customer.type = 'vendor') {
@@ -230,7 +243,7 @@ module.exports = function(getIOInstance) {
 
 
         if (!_id) {
-            return res.status(400).send({ error: "Please provide an id", field: '_id' });
+            return res.status(400).send({ error: "Please provide an id", field: 'id' });
         }
         //  update element in mongodb put
         req.customer._id = ObjectId(req.customer._id)
