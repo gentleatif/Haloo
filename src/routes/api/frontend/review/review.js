@@ -1,13 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const Review = require("../../../models/review");
-
+const Review = require("../../../../models/review");
+const Job = require("../../../../models/job");
+const customer = require("../../admin/customer");
+// get review
 router.get("/", async function (req, res) {
+  console.log("Got body:", req.body);
   console.log("Got query:", req.query);
   var customerId = req.query.customerId;
   var vendorId = req.query.vendorId;
   var jobId = req.query.jobId;
-  var _id = req.query._id;
+  var _id = req.query.id;
+
   var rating = req.query.rating;
 
   var findQuery = { _id, customerId, vendorId, jobId, rating };
@@ -58,16 +62,16 @@ router.get("/", async function (req, res) {
     res.sendStatus(400);
   }
 });
-
-router.post("/", async function (req, res) {
-  console.log("Got query:", req.query);
-  console.log("Got body:", req.body);
-  var customerId = req.body.customerId;
-  var vendorId = req.body.vendorId;
+// create --> customer
+router.post("/customer", async function (req, res) {
+  var vendorId = req.customer._id;
   var jobId = req.body.jobId;
+  // find customer of
+  let job = await Job.findOne({ _id: jobId });
+  let customerId = job.customerId;
   var rating = parseFloat(req.body.rating);
   var comment = req.body.comment;
-  var reviewFor = req.body.reviewFor;
+  var reviewFor = "customer";
   if (rating == NaN || rating > 5 || rating < 0) {
     return res.send({ error: "Invalid rating value" });
   } else if (!jobId) {
@@ -83,7 +87,6 @@ router.post("/", async function (req, res) {
     comment,
     reviewFor,
   });
-
   item
     .save(item)
     .then(function (item) {
@@ -96,16 +99,61 @@ router.post("/", async function (req, res) {
       res.sendStatus(400);
     });
 });
-
-router.delete("/", async function (req, res) {
-  // console.log('Got query:', req.query);
-  // console.log('Got body:', req.body);
-  var _id = req.query._id;
+// create --> vendor
+router.post("/vendor", async function (req, res) {
+  var customerId = req.customer._id;
+  var jobId = req.body.jobId;
+  // find customer of
+  let job = await Job.findOne({ _id: jobId });
+  let vendorId = job.vendorId;
+  var rating = parseFloat(req.body.rating);
+  var comment = req.body.comment;
+  var reviewFor = "vendor";
+  if (rating == NaN || rating > 5 || rating < 0) {
+    return res.send({ error: "Invalid rating value" });
+  } else if (!jobId) {
+    return res.send({ error: "Add JobId value" });
+  } else if (reviewFor != "customer" && reviewFor != "vendor") {
+    return res.send({ error: "Invalid reviewFor value, customer or vendor" });
+  }
+  var item = new Review({
+    customerId,
+    vendorId,
+    jobId,
+    rating,
+    comment,
+    reviewFor,
+  });
+  item
+    .save(item)
+    .then(function (item) {
+      console.log(item);
+      res.sendStatus(200);
+    })
+    .catch((error) => {
+      //error handle
+      console.log(error);
+      res.sendStatus(400);
+    });
+});
+// update --> customer, vendor
+router.put("/", async function (req, res) {
+  const _id = req.query.id;
   if (!_id) {
     res.send({ error: "Please provide an id" });
   } else {
-    //  remove eleemnt id id mongodb
-    Review.remove({ _id: _id })
+    // check rating before submitting
+    const { rating, comment } = req.body;
+    if (rating == NaN || rating > 5 || rating < 0) {
+      return res.send({ error: "Invalid rating value" });
+    }
+
+    let item = {
+      rating,
+      comment,
+    };
+    //  update eleemnt id id mongodb
+    Review.updateOne({ _id: _id }, { $set: item })
       .then(function (item) {
         res.sendStatus(200);
       })
@@ -116,16 +164,16 @@ router.delete("/", async function (req, res) {
       });
   }
 });
-
-router.put("/", async function (req, res) {
+// delete --> customer, vendor
+router.delete("/", async function (req, res) {
   // console.log('Got query:', req.query);
-  console.log("Got body:", req.body);
-  var _id = req.query._id;
+  // console.log('Got body:', req.body);
+  var _id = req.query.id;
   if (!_id) {
     res.send({ error: "Please provide an id" });
   } else {
-    //  update eleemnt id id mongodb
-    Review.update({ _id: _id }, { $set: req.body })
+    //  remove eleemnt id id mongodb
+    Review.remove({ _id: _id })
       .then(function (item) {
         res.sendStatus(200);
       })

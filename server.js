@@ -1,85 +1,96 @@
 require("dotenv").config();
-const express = require('express')
-const bodyParser = require('body-parser')
-const mongoose = require('mongoose')
-const cors = require('cors');
-const path = require('path');
+const express = require("express");
+const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const path = require("path");
 //file import
-const config = require('./config')
-
-
+const config = require("./config");
+const Contactus = require("./src/models/contactus");
 //creating express intances
-const app = express()
+const app = express();
 
-app.use(cors())
+app.use(cors());
 
 app.use(
   bodyParser.urlencoded({
     extended: true,
   })
-)
+);
 
-app.use(bodyParser.json())
-app.use('/uploads', express.static('./uploads'));
+app.use(bodyParser.json());
+app.use("/uploads", express.static("./uploads"));
 
 // mogodb connection
-mongoose.connect(
-    config.MONGODB_URL,
-  {useNewUrlParser: true, useUnifiedTopology: true}
-)
+mongoose.connect(config.MONGODB_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 const db = mongoose.connection;
 
-db.on('error', console.error.bind(console, 'Connection error'));
-db.once('open', function () {
-  console.log('Connection succeeded.');
-})
+db.on("error", console.error.bind(console, "Connection error"));
+db.once("open", function () {
+  console.log("Connection succeeded.");
+});
 
 // forwarding models to routes
 app.use((req, res, next) => {
   console.log(`Request_Endpoint: ${req.method} ${req.url}`);
-  res.header("Access-Control-Allow-Origin", '*');
+  res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Credentials", true);
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-  res.header("Access-Control-Allow-Headers", 'Origin,X-Requested-With,Content-Type,Accept,content-type,application/json');
-  
+  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin,X-Requested-With,Content-Type,Accept,content-type,application/json"
+  );
+
   next();
 });
 
-
-
 // Require Route
-const router = require('./src/routes')();
+const router = require("./src/routes")();
 app.use(router);
 
+app.post("/contactus", async (req, res) => {
+  // console.log('Got query:', req.query);
+  // console.log('Got body:', req.body);
+  console.log("req route is trggered");
+  //  remove eleemnt id id mongodb
+  const contactInfo = new Contactus({
+    name: req.body.name,
+    phone: req.body.phone,
+    message: req.body.message,
+  });
+  contactInfo
+    .save()
+    .then(function (item) {
+      res.sendStatus(200);
+    })
+    .catch((error) => {
+      //error handle
+      console.log(error);
+      res.sendStatus(400);
+    });
+});
+
+app.get("/contactus", async (req, res) => {
+  try {
+    const data = await Contactus.find();
+    res.send({ data: data });
+  } catch (error) {
+    res.sendStatus(400);
+  }
+});
 // app.use(express.static('client/build'));
 
 // app.get('*', (req, res) => res.sendFile(path.resolve('client', 'build', 'index.html')));
 
-
 const port = process.env.PORT || 3000;
 
 app.listen(port, function () {
-  console.log('listining to port ' + port);
+  console.log("listining to port " + port);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // require("dotenv").config();
 // var express = require('express')
@@ -106,7 +117,6 @@ app.listen(port, function () {
 // let razorpayInstance = () => {
 //   return instance;
 // }
-
 
 // var cors = require('cors');
 // const { route } = require("./src/routes/api/provider/profile_detail");
@@ -145,7 +155,7 @@ app.listen(port, function () {
 //   res.header("Access-Control-Allow-Credentials", true);
 //   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
 //   res.header("Access-Control-Allow-Headers", 'Origin,X-Requested-With,Content-Type,Accept,content-type,application/json');
-  
+
 //   next()
 // })
 
@@ -161,11 +171,9 @@ app.listen(port, function () {
 // // require('./src/routes')(app, io)
 // app.use(router);
 
-
 // app.use(express.static('client/build'));
 
 // app.get('*', (req, res) => res.sendFile(path.resolve('client', 'build', 'index.html')));
-
 
 // var port = process.env.PORT || 3000
 
@@ -179,7 +187,7 @@ app.listen(port, function () {
 //   console.log(socket.handshake);
 //   console.log(socket.handshake.query.token);
 //   console.log("test");
-  
+
 //   try{
 //     if (socket.handshake.query && socket.handshake.query.token){
 //       const token = socket.handshake.query.token
@@ -207,15 +215,13 @@ app.listen(port, function () {
 //   //   }
 //   //   else {
 //   //     next(new Error('Authentication error'));
-//   //   }   
+//   //   }
 // }).on("connection", async function (socket) {
 //   console.log("Made socket connection");
-  
+
 //   data = await Customer.findOne({_id:socket.user})
-  
+
 //   console.log(data);
-
-
 
 //   if(data){
 //     data.socketId = socket.id;
@@ -238,7 +244,7 @@ app.listen(port, function () {
 //     io.to(socket.id).emit('disconnected', {
 //       error: 'Not able to get data from socket token',
 //     });
-    
+
 //   }
 // });
 
@@ -256,7 +262,7 @@ app.listen(port, function () {
 // //   }
 // //   else {
 // //     next(new Error('Authentication error'));
-// //   }    
+// //   }
 // // })
 // // .on('connection', function(socket) {
 // //     // Connection now authenticated to receive further events

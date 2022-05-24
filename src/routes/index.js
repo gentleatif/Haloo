@@ -1,19 +1,11 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
+module.exports = function () {
+  router.use("/api", require("./api")());
 
-module.exports = function() {
-
-    router.use('/api', require('./api')());
-
-    return router
-}
-
-
-
-
-
-
+  return router;
+};
 
 // module.exports = function(app, io) {
 //     return app.use('/api', require('./api/index.js'));
