@@ -3,7 +3,6 @@ const router = express.Router();
 
 
 module.exports = function() {
-    router.use('/customer', require('./customer'));
-    router.use('/vendor', require('./vendor'));
+    router.use('/', require('./job')());
     return router
 }
