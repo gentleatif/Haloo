@@ -52,40 +52,6 @@ app.use((req, res, next) => {
 const router = require("./src/routes")();
 app.use(router);
 
-app.post("/contactus", async (req, res) => {
-  // console.log('Got query:', req.query);
-  // console.log('Got body:', req.body);
-  console.log("req route is trggered");
-  //  remove eleemnt id id mongodb
-  const contactInfo = new Contactus({
-    name: req.body.name,
-    phone: req.body.phone,
-    message: req.body.message,
-  });
-  contactInfo
-    .save()
-    .then(function (item) {
-      res.sendStatus(200);
-    })
-    .catch((error) => {
-      //error handle
-      console.log(error);
-      res.sendStatus(400);
-    });
-});
-
-app.get("/contactus", async (req, res) => {
-  try {
-    const data = await Contactus.find();
-    res.send({ data: data });
-  } catch (error) {
-    res.sendStatus(400);
-  }
-});
-// app.use(express.static('client/build'));
-
-// app.get('*', (req, res) => res.sendFile(path.resolve('client', 'build', 'index.html')));
-
 const port = process.env.PORT || 3000;
 
 app.listen(port, function () {
@@ -203,19 +169,19 @@ app.listen(port, function () {
 //     console.log(e);
 //     if (err) return next(new Error('Authentication error'));
 //   }
-//   // if (socket.handshake.query && socket.handshake.query.token){
-//   //     jwt.verify(socket.handshake.query.token, "config.TOKEN_KEY", function(err, decoded) {
-//   //       // console.log("test");
-//   //       if (err) console.log(err);
-//   //       if (err) return next(new Error('Authentication error'));
-//   //       socket.decoded = decoded;
-//   //       console.log(detail, socket.decoded)
-//   //       next();
-//   //     });
-//   //   }
-//   //   else {
-//   //     next(new Error('Authentication error'));
-//   //   }
+// if (socket.handshake.query && socket.handshake.query.token){
+//     jwt.verify(socket.handshake.query.token, "config.TOKEN_KEY", function(err, decoded) {
+//       // console.log("test");
+//       if (err) console.log(err);
+//       if (err) return next(new Error('Authentication error'));
+//       socket.decoded = decoded;
+//       console.log(detail, socket.decoded)
+//       next();
+//     });
+//   }
+//   else {
+//     next(new Error('Authentication error'));
+//   }
 // }).on("connection", async function (socket) {
 //   console.log("Made socket connection");
 
@@ -248,29 +214,29 @@ app.listen(port, function () {
 //   }
 // });
 
-// // io.on()
+// io.on()
 
-// // io.use(function(socket, next){
-// //   if (socket.handshake.query && socket.handshake.query.token){
-// //     jwt.verify(socket.handshake.query.token, "config.TOKEN_KEY", function(err, decoded) {
-// //       console.log("test");
-// //       if (err) console.log(err);
-// //       if (err) return next(new Error('Authentication error'));
-// //       socket.decoded = decoded;
-// //       next();
-// //     });
-// //   }
-// //   else {
-// //     next(new Error('Authentication error'));
-// //   }
-// // })
-// // .on('connection', function(socket) {
-// //     // Connection now authenticated to receive further events
+// io.use(function(socket, next){
+//   if (socket.handshake.query && socket.handshake.query.token){
+//     jwt.verify(socket.handshake.query.token, "config.TOKEN_KEY", function(err, decoded) {
+//       console.log("test");
+//       if (err) console.log(err);
+//       if (err) return next(new Error('Authentication error'));
+//       socket.decoded = decoded;
+//       next();
+//     });
+//   }
+//   else {
+//     next(new Error('Authentication error'));
+//   }
+// })
+// .on('connection', function(socket) {
+//     // Connection now authenticated to receive further events
 
-// //     io.emit('newMessage', message);
-// //     socket.on('message', function(message) {
-// //       io.emit('message', message);
-// //     });
-// // });
+//     io.emit('newMessage', message);
+//     socket.on('message', function(message) {
+//       io.emit('message', message);
+//     });
+// });
 
-// // module.export = server;
+// module.export = server;
