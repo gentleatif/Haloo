@@ -100,12 +100,12 @@ router.post("/verify_otp", async (req, res) => {
     // }
     // check otp generated
     if (!(customer.otp || customer.otpExpiry)) {
-      return res.status(400).send({ error: "OTP not generated" });
+      return res.status(400).send({ error: "OTP not generated", field: "otp" });
     }
 
     // check if otp is expired
     if (customer.otpExpiry < Date.now()) {
-      return res.status(400).send({ error: "OTP expired" });
+      return res.status(400).send({ error: "OTP expired", field: "otp" });
     }
     if (customer.otp === otp) {
       // customer.otp_expiry = Date.now() + (60 * 1000);
@@ -133,7 +133,6 @@ router.post("/verify_otp", async (req, res) => {
           { expiresIn: "30d" }
         );
       }
-      // mere mai ho raha hai postman token ka issue hai
       // save jws token
       // customer.token = jwt.sign({ id: customer._id, loginType:'customer'  }, config.CUSTOMER_LOGIN_SECRET, { expiresIn: '30d' });
 
@@ -154,16 +153,12 @@ router.post("/verify_otp", async (req, res) => {
 router.post("/logout", customer_auth, async (req, res) => {
   // let customer = await Customer.findOne({_id:_id});
   console.log(req.customer);
-  Customer.updateOne(
-    { _id: req.customer._id },
-    { token: null },
-    (err, result) => {
-      if (err) {
-        return res.status(400).send({ error: err });
-      }
-      return res.status(200).send({ data: "Successfully logged out" });
+  Customer.updateOne({ _id: req.customer._id }, { token: null }, (err, _) => {
+    if (err) {
+      return res.status(400).send({ error: err });
     }
-  );
+    return res.status(200).send({ data: "Successfully logged out" });
+  });
 });
 
 module.exports = router;
