@@ -67,7 +67,11 @@ router.post("/", async (req, res) => {
     try {
       let { jobId, query, type } = req.body;
       //   check type
-      const allowedTypes = ["Payment support", "Other", "Service Not complete"];
+      const allowedTypes = [
+        "Payment support",
+        "Other",
+        "Service Not completed",
+      ];
       if (!allowedTypes.includes(type)) {
         return res.status(400).send({ error: "Invalid type", field: "type" });
       }
@@ -154,7 +158,11 @@ router.put("/", async function (req, res) {
     try {
       let { jobId, query, type } = req.body;
       //   check type
-      const allowedTypes = ["Payment support", "Other", "Service Not complete"];
+      const allowedTypes = [
+        "Payment support",
+        "Other",
+        "Service Not completed",
+      ];
       if (!allowedTypes.includes(type)) {
         return res.status(400).send({ error: "Invalid type", field: "type" });
       }
