@@ -18,12 +18,10 @@ router.post("/", async (req, res) => {
   }
   let phoneRegExp = /^\+?[1-9]\d{1,14}$/;
   if (!phoneRegExp.test(phone)) {
-    return res
-      .status(400)
-      .send({
-        error: "Phone number must be E.164 format without country code",
-        field: "phone",
-      });
+    return res.status(400).send({
+      error: "Phone number must be E.164 format without country code",
+      field: "phone",
+    });
   }
   // name validation
   if (name.length < 3) {
@@ -49,7 +47,11 @@ router.post("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const data = await Contactus.find();
+    const columnName = req.query.columnName;
+    const sort = req.query.sort;
+    const query = { [columnName]: parseInt(sort) };
+    console.log(query);
+    const data = await Contactus.find().sort(query);
     res.send({ data: data });
   } catch (error) {
     res.sendStatus(400);

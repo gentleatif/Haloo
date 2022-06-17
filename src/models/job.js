@@ -1,7 +1,7 @@
-var mongoose = require('mongoose');
+var mongoose = require("mongoose");
 
-
-const jobSchema = new mongoose.Schema({
+const jobSchema = new mongoose.Schema(
+  {
     // quote: {
     //     type: Number,
     // },
@@ -15,8 +15,8 @@ const jobSchema = new mongoose.Schema({
     //     type: String,
     // },
     customerId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'customer',
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "customer",
     },
     // propertyName: {
     //     type: String,
@@ -25,49 +25,53 @@ const jobSchema = new mongoose.Schema({
     //   type: mongoose.Schema.Types.ObjectId, ref: 'categories ',
     // },
     subCategoryId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'subCategory',
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "subCategory",
     },
     vendorId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'customer',
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "customer",
     },
     discount: {
-        type: Number,
+      type: Number,
     },
     totalAmount: {
-        type: Number,
+      type: Number,
     },
     // date: {
     //     type: Date,
     // },
     ScheduleTime: {
-        type: Date,
+      type: Date,
     },
     // jobTotal: {
     //     type: Number,
     // },
     otp: {
-        type: String,
+      type: String,
     },
     address: {
-        type: String,
+      type: String,
     },
     rejectType: {
-        type: String,
-        enum: ['customer', 'vendor'],
+      type: String,
+      enum: ["customer", "vendor"],
     },
     rejectReason: {
-        type: String,
+      type: String,
     },
     status: {
-        type: String,
-        default: 'pending',
+      type: String,
+      default: "pending",
     },
+    coupon: {
+      type: String,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-}, {
-    timestamps: true
-});
-
-const Job = mongoose.model('job', jobSchema)
+const Job = mongoose.model("job", jobSchema);
 module.exports = Job;

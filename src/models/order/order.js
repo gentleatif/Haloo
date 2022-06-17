@@ -1,42 +1,25 @@
 var mongoose = require("mongoose");
+// user,total, Discount(discountAmount), finalAmount
 
-const reportSchema = new mongoose.Schema(
+const orderSchema = new mongoose.Schema(
   {
-    adminUser: {
-      type: String,
+    total: {
+      type: Number,
     },
-    ipAddress: {
-      type: String,
+    discount: {
+      type: Number,
     },
-    osAndBrowser: {
-      type: String,
+    finalAmount: {
+      type: Number,
     },
-    loginDate: {
-      type: String,
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
-    adminEmail: {
+    status: {
       type: String,
-    },
-    adminRole: {
-      type: String,
-    },
-    browser: {
-      type: String,
-    },
-    os: {
-      type: String,
-    },
-    platform: {
-      type: String,
-    },
-    ipAddress: {
-      type: String,
-    },
-    adminLoginTime: {
-      type: String,
-    },
-    logoutDate: {
-      type: String,
+      enum: ["pending", "completed", "cancelled"],
+      default: "pending",
     },
   },
   {
@@ -44,5 +27,5 @@ const reportSchema = new mongoose.Schema(
   }
 );
 
-const AdminReport = mongoose.model("adminReport", reportSchema);
-module.exports = AdminReport;
+const Order = mongoose.model("order", orderSchema);
+module.exports = Order;

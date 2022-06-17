@@ -10,7 +10,8 @@ module.exports = function () {
   router.use("/job", customer_auth, require("./job")());
   router.use("/support", customer_auth, require("./support")());
   router.use("/review", customer_auth, require("./review")());
+  router.use("/order", customer_auth, require("./order")());
   router.use("/contactus", customer_auth, require("./contactus")());
-
+  router.use("/payment", customer_auth, require("./payment")());
   return router;
 };
