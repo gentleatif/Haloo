@@ -56,10 +56,9 @@ router.post("/verifyOrder", (req, res) => {
   const generated_signature = hmac.digest("hex");
 
   if (razorpay_signature === generated_signature) {
+    Order.findOneAndUpdate({ order_id }, { $set: { status: "completed" } });
     res.json({ success: true, message: "Payment has been verified" });
   } else {
-    // change order status from enum pending to completed
-    Order.findOneAndUpdate({ order_id }, { $set: { status: "completed" } });
     res.json({ success: false, message: "Payment verification failed" });
   }
 });
