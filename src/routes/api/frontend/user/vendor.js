@@ -43,6 +43,7 @@ router.get("/", async (req, res) => {
   }
 
   console.log("Got query:", req.query);
+  console.log("sorting method ===>", columnName, sort);
 
   try {
     // data = await Customer.find(findQuery);
@@ -185,9 +186,11 @@ router.get("/", async (req, res) => {
       },
       // if avgRating is null then set it to 0
       {
-        $sort: { columnName: sort },
+        $sort: { avgRating: sort },
       },
     ]);
+    console.log("sorting method ===>", columnName, sort);
+
     // console.log('Got data:', data);
 
     // for (let index = 0; index < data.length; index++) {

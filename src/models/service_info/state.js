@@ -1,21 +1,23 @@
-var mongoose = require('mongoose');
+var mongoose = require("mongoose");
 
-const stateSchema = new mongoose.Schema({
+const stateSchema = new mongoose.Schema(
+  {
     stateName: {
-        type: String, required: true,
+      type: String,
+      required: true,
     },
     // countryName: {
     //     type: String, required: true,
     // },
     status: {
       type: String,
-      default: 'Active',
+      default: "Active",
     },
   },
-    {
-      timestamps: true
-    });
-  
-  const State = mongoose.model('state', stateSchema)
-  module.exports = State;
+  {
+    timestamps: true,
+  }
+);
 
+const State = mongoose.model("state", stateSchema);
+module.exports = State;

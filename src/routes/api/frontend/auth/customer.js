@@ -89,6 +89,7 @@ router.post("/verify_otp", async (req, res) => {
         .status(400)
         .send({ error: "Your account is blocked by admin", field: "phone" });
     }
+    //
 
     // if (!customer.type) {
     //     console.log('customer.type', customer.type);
@@ -108,6 +109,13 @@ router.post("/verify_otp", async (req, res) => {
       return res.status(400).send({ error: "OTP expired", field: "otp" });
     }
     if (customer.otp === otp) {
+      // is loggedIn on new device save new device token
+      if (!customer.deviceToken.includes(req.body.deviceToken)) {
+        // add this device token to customer deviceToken array
+        customer.deviceToken.push(req.body.deviceToken);
+        await customer.save();
+      }
+
       // customer.otp_expiry = Date.now() + (60 * 1000);
       customer.otp = null;
       customer.otpExpiry = null;

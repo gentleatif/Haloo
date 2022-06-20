@@ -8,6 +8,7 @@ const orderSchema = new mongoose.Schema(
     },
     discount: {
       type: Number,
+      default: 0,
     },
     finalAmount: {
       type: Number,
@@ -20,6 +21,14 @@ const orderSchema = new mongoose.Schema(
       type: String,
       enum: ["pending", "completed", "cancelled"],
       default: "pending",
+    },
+    couponId: {
+      type: String,
+      default: null,
+    },
+    jobId: {
+      type: String,
+      default: null,
     },
   },
   {

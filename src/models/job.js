@@ -64,9 +64,6 @@ const jobSchema = new mongoose.Schema(
       type: String,
       default: "pending",
     },
-    coupon: {
-      type: String,
-    },
   },
   {
     timestamps: true,

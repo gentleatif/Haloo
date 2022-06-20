@@ -10,55 +10,16 @@ const multer = require("multer");
 
 router.get("/", async (req, res) => {
   console.log("Got query: =================>", req.query);
-
   try {
-    // console.og('findQuery:', findQuery);
-    let resType = req.query.type;
-    if (resType === "all") {
-      console.log("resType:", resType);
-      // get all subcataegories group by category
-      // const categories = await subCategory.find({});
-      const categories = await subCategory.aggregate([
-        {
-          $group: {
-            _id: "$parentCategoryId",
-            subCategories: { $push: "$$ROOT" },
-          },
-        },
-
-        //    second stage
-        // add field parent category detail from category model
-        {
-          $lookup: {
-            from: "categories",
-            localField: "_id",
-            foreignField: "_id",
-            as: "parentCategoryDetails",
-          },
-        },
-        { $unwind: "$parentCategoryDetails" },
-
-        {
-          $addFields: { categoryName: "$parentCategoryDetails.categoryName" },
-        },
-        {
-          $project: {
-            _id: 1,
-            "subCategories.price": 1,
-            "subCategories.category": 1,
-            "subCategories._id": 1,
-            categoryName: 1,
-          },
-        },
-      ]);
-
-      // remove ca
-
-      res.send({ data: categories });
+    const categoryName = req.query.categoryName;
+    var categories;
+    if (categoryName != undefined) {
+      var query = { categoryName: { $regex: new RegExp(categoryName, "i") } };
+      categories = await Category.find(query);
     } else {
-      data = await Category.find(req.query);
-      res.send({ data: data });
+      categories = await Category.find({});
     }
+    res.send({ data: categories });
   } catch (error) {
     console.log(error);
     res.status(400).send({ error: "server error occur" });

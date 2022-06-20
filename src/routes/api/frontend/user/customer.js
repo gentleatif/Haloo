@@ -12,6 +12,7 @@ const ObjectId = mongoose.Types.ObjectId;
 const multer = require("multer");
 
 router.get("/", async (req, res) => {
+  console.log(...req.query);
   console.log("user details", req.user);
   console.log("Got query:", req.query);
   if (!req.customer._id) {
@@ -295,12 +296,10 @@ router.put("/", async function (req, res) {
       console.log("jobSkills", jobSkills);
       for (var i = 0; i < jobSkills.length; i++) {
         if (!mongoose.Types.ObjectId.isValid(jobSkills[i])) {
-          return res
-            .status(400)
-            .send({
-              error: "Invalid jobSkills (mongodbId)",
-              field: "jobSkills",
-            });
+          return res.status(400).send({
+            error: "Invalid jobSkills (mongodbId)",
+            field: "jobSkills",
+          });
         }
       }
     }
