@@ -66,7 +66,7 @@ router.get("/", async function (req, res) {
     const reviews = [];
     data.forEach((single) => {
       console.log("vendorDtls of Each rating===> ");
-      // ife here for when reviewFor 
+      // ife here for when reviewFor
       const vendor = single.vendorDetails[0];
       const vendorDtls = {
         name: vendor.firstName + vendor.lastName,
@@ -103,6 +103,7 @@ router.get("/", async function (req, res) {
     averageRating = averageRating.toFixed(1);
     // taking dtls of logged in user as my dtls
     const customer = req.customer;
+    console.log();
     const customerDtls = {
       name: customer.address[0].firstName + customer.address[0].lastName,
       img: customer.profileImage,

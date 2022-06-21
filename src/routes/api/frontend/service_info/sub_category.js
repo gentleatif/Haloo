@@ -25,8 +25,12 @@ router.get("/", async (req, res) => {
     let subCategoryName = req.query.subCategoryName;
     // console.log(data);
     var query = { category: { $regex: new RegExp(subCategoryName, "i") } };
-    data = await SubCategory.find(query);
-    // data = await SubCategory.find(findQuery);
+    var query2 = { categoryName: { $regex: new RegExp(subCategoryName, "i") } };
+
+    let subCategoryData = await SubCategory.find(query);
+    let categoryData = await Category.find(query2);
+    // send both category data in response as well as sub category data
+    const data = { subCategory: subCategoryData, category: categoryData };
     res.send({ data: data });
   } catch (error) {
     console.log(error);
