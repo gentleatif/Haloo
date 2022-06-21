@@ -221,16 +221,19 @@ router.put("/", async function (req, res) {
     }
     //  update order
     try {
-      await Order.updateOne(
+      await Order.findOneAndUpdate(
         { _id: orderId },
         {
           total: job.totalAmount,
           discount: discountAmount,
           finalAmount,
           couponId,
-        }
+        },
+        { returnDocument: "after" }
       );
-      return res.send({ order });
+
+      let updatedOrder = await Order.findOne({ _id: orderId });
+      return res.send({ order: updatedOrder });
     } catch (error) {
       console.log(error);
       return res.status(400).send({ error: error });
