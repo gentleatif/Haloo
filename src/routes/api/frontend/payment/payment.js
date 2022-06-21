@@ -3,15 +3,16 @@ const router = express.Router();
 const Order = require("../../../../models/order/order");
 const Razorpay = require("razorpay");
 const mongoose = require("mongoose");
+const crypto = require("crypto");
 
 // This razorpayInstance will be used to
 // access any resource from razorpay
 const razorpayInstance = new Razorpay({
   // Replace with your key_id
-  key_id: "rzp_test_oQ86zORxVDIFgZ",
+  key_id: "rzp_test_rsZhchl2dCY4yw",
 
   // Replace with your key_secret
-  key_secret: "HAzY2bmHOjhAbVqtjgVTGoH3",
+  key_secret: "tZZZb25tLMos5DoWnXaIQEUI",
 });
 router.post("/createOrder", async (req, res) => {
   // STEP 1:
@@ -54,6 +55,8 @@ router.post("/createOrder", async (req, res) => {
 router.post("/verifyOrder", (req, res) => {
   // STEP 7: Receive Payment Data
   const { order_id, payment_id } = req.body;
+  console.log("order_id ====>", order_id);
+  console.log("payment_id ====>", payment_id);
   // check if order_id is is provided or not
   if (!order_id) {
     return res.status(400).json({
@@ -78,7 +81,7 @@ router.post("/verifyOrder", (req, res) => {
     });
   }
   // Pass yours key_secret here
-  const key_secret = "rzp_test_oQ86zORxVDIFgZ";
+  const key_secret = "tZZZb25tLMos5DoWnXaIQEUI";
 
   // STEP 8: Verification & Send Response to User
 
@@ -90,7 +93,8 @@ router.post("/verifyOrder", (req, res) => {
 
   // Creating the hmac in the required format
   const generated_signature = hmac.digest("hex");
-
+  console.log("generated_signature ====>", generated_signature);
+  console.log("razorpay_signature ====>", razorpay_signature);
   if (razorpay_signature === generated_signature) {
     Order.findOneAndUpdate({ order_id }, { $set: { status: "completed" } });
     res.json({ success: true, message: "Payment has been verified" });
