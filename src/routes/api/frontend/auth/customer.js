@@ -110,9 +110,9 @@ router.post("/verify_otp", async (req, res) => {
     }
     if (customer.otp === otp) {
       // is loggedIn on new device save new device token
-      if (!customer.deviceToken.includes(req.body.deviceToken)) {
+      if (!customer.registrationToken.includes(req.body.registrationToken)) {
         // add this device token to customer deviceToken array
-        customer.deviceToken.push(req.body.deviceToken);
+        customer.registrationToken.push(req.body.registrationToken);
         await customer.save();
       }
 

@@ -130,8 +130,8 @@ const customerSchema = new mongoose.Schema(
     blockReason: {
       type: String,
     },
-    // store device token for push notification
-    deviceToken: {
+    // store registration token for push notification fcm
+    registrationToken: {
       type: Array,
     },
   },

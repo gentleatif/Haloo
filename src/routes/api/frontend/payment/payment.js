@@ -4,6 +4,9 @@ const Order = require("../../../../models/order/order");
 const Razorpay = require("razorpay");
 const mongoose = require("mongoose");
 const crypto = require("crypto");
+// require sendNotification function from fcm.js
+const sendNotification = require("../../../../routes/api/frontend/fcm/fcm");
+const Notification = require("../../../../models/notification/notification");
 
 // This razorpayInstance will be used to
 // access any resource from razorpay
@@ -96,6 +99,24 @@ router.post("/verifyOrder", (req, res) => {
   console.log("generated_signature ====>", generated_signature);
   console.log("razorpay_signature ====>", razorpay_signature);
   if (razorpay_signature === generated_signature) {
+    // loop through all registraionTokens
+    customer.registrationToken.forEach((singleRegToken) => {
+      sendNotification(singleRegToken, {
+        notification: {
+          title: "Payment Successful",
+          body: "Your payment has been successful",
+        },
+      });
+    });
+    // save notification in database
+    const notification = new Notification({
+      customerId: req.customer._id,
+      notification: {
+        title: "Payment Successful",
+        message: "Your payment has been successful",
+      },
+    });
+    notification.save();
     Order.findOneAndUpdate({ order_id }, { $set: { status: "completed" } });
     res.json({ success: true, message: "Payment has been verified" });
   } else {
