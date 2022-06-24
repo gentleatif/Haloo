@@ -100,23 +100,23 @@ router.post("/verifyOrder", (req, res) => {
   console.log("razorpay_signature ====>", razorpay_signature);
   if (razorpay_signature === generated_signature) {
     // loop through all registraionTokens
-    customer.registrationToken.forEach((singleRegToken) => {
-      sendNotification(singleRegToken, {
-        notification: {
-          title: "Payment Successful",
-          body: "Your payment has been successful",
-        },
-      });
-    });
-    // save notification in database
-    const notification = new Notification({
-      customerId: req.customer._id,
-      notification: {
-        title: "Payment Successful",
-        message: "Your payment has been successful",
-      },
-    });
-    notification.save();
+    // req.customer.registrationToken.forEach((singleRegToken) => {
+    //   sendNotification(singleRegToken, {
+    //     notification: {
+    //       title: "Payment Successful",
+    //       body: "Your payment has been successful",
+    //     },
+    //   });
+    // });
+    // // save notification in database
+    // const notification = new Notification({
+    //   customerId: req.customer._id,
+    //   notification: {
+    //     title: "Payment Successful",
+    //     message: "Your payment has been successful",
+    //   },
+    // });
+    // notification.save();
     Order.findOneAndUpdate({ order_id }, { $set: { status: "completed" } });
     res.json({ success: true, message: "Payment has been verified" });
   } else {

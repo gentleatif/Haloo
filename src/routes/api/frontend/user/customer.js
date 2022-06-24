@@ -12,7 +12,7 @@ const ObjectId = mongoose.Types.ObjectId;
 const multer = require("multer");
 
 router.get("/", async (req, res) => {
-  console.log(...req.query);
+  // console.log(...req.query);
   console.log("user details", req.user);
   console.log("Got query:", req.query);
   if (!req.customer._id) {
