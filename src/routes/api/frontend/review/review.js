@@ -31,11 +31,8 @@ router.get("/", async function (req, res) {
     let data = await Review.aggregate([
       {
         $match: {
-          ...req.query,
-          $or: [
-            { customerId: req.customer._id },
-            { vendorId: req.customer._id },
-          ],
+          customerId: req.customer._id,
+          vendorId: req.customer._id,
         },
       },
       {
