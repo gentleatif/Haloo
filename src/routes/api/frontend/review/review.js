@@ -4,10 +4,7 @@ const Review = require("../../../../models/review");
 const Job = require("../../../../models/job");
 const Customer = require("../../../../models/user_management/customer");
 const Vendor = require("../../../../models/user_management/vendor");
-const { sign } = require("jsonwebtoken");
-
-// const { findOne } = require("../../../../models/review");
-// get review
+const mongoose = require("mongoose");
 
 router.get("/", async function (req, res) {
   // console.log("Got body:", req.body);
@@ -31,7 +28,7 @@ router.get("/", async function (req, res) {
   }
 
   try {
-    data = await Review.aggregate([
+    let data = await Review.aggregate([
       {
         $match: {
           ...req.query,
@@ -58,6 +55,7 @@ router.get("/", async function (req, res) {
         },
       },
     ]);
+    console.log("data ====>", data);
     let rating1 = 0;
     let rating2 = 0;
     let rating3 = 0;
@@ -68,6 +66,7 @@ router.get("/", async function (req, res) {
       console.log("vendorDtls of Each rating===> ");
       // ife here for when reviewFor
       const vendor = single.vendorDetails[0];
+      console.log("vendor ====>", vendor);
       const vendorDtls = {
         name: vendor.firstName + vendor.lastName,
         rating: single.rating,
@@ -75,6 +74,7 @@ router.get("/", async function (req, res) {
         img: vendor.profileImage,
       };
       reviews.push(vendorDtls);
+      console.log("vendorDtls ====>", vendorDtls);
       switch (single.rating) {
         case 1:
           rating1++;
@@ -103,9 +103,9 @@ router.get("/", async function (req, res) {
     averageRating = averageRating.toFixed(1);
     // taking dtls of logged in user as my dtls
     const customer = req.customer;
-    console.log();
-    const customerDtls = {
-      name: customer.address[0].firstName + customer.address[0].lastName,
+    console.log("customer ===>", customer);
+    const myDtls = {
+      name: customer.firstName + customer.lastName,
       img: customer.profileImage,
       averageRating: averageRating,
       totalRating: totalRating,
@@ -115,109 +115,18 @@ router.get("/", async function (req, res) {
       twoStar: rating2,
       oneStar: rating1,
     };
-    console.log("loggedIn Customer Dtls==> ", customerDtls);
-    console.log("dtls of Vendor who have given reviews==> ", reviews);
-    data = {
-      customerDtls: customerDtls,
+    console.log("reviews ====>", reviews);
+    let finalData = {
+      customerDtls: myDtls,
       reviews: reviews,
     };
-    res.send({ data: data });
+
+    res.send({ data: finalData });
   } catch (error) {
     res.sendStatus(400);
   }
 });
-// get
-// router.get("/customer", async (req, res) => {
-//   const customerId = req.customer._id;
-//   // finding 5,4,3,2,1 rating
-//   data = await Review.aggregate([
-//     {
-//       $match: {
-//         customerId,
-//         reviewFor: "customer",
-//       },
-//     },
-//     {
-//       $lookup: {
-//         from: "vendor",
-//         localField: "vendorId",
-//         foreignField: "_id",
-//         as: "vendorDetails",
-//       },
-//     },
-//   ]);
-//   console.log("data===>", data);
-//   let fiveStar = await Review.find({
-//     customerId: customerId,
-//     rating: "5",
-//     reviewFor: "customer",
-//   }).exec();
-//   let fourStar = await Review.find({
-//     customerId: customerId,
-//     rating: "4",
-//     reviewFor: "customer",
-//   }).exec();
-//   let threeStar = await Review.find({
-//     customerId: customerId,
-//     rating: "3",
-//     reviewFor: "customer",
-//   }).exec();
-//   let twoStar = await Review.find({
-//     customerId: customerId,
-//     rating: "2",
-//     reviewFor: "customer",
-//   }).exec();
-//   let oneStar = await Review.find({
-//     customerId: customerId,
-//     rating: "1",
-//     reviewFor: "customer",
-//   }).exec();
-//   const customerDetails = [];
 
-//   fiveStar.forEach(async (singleRating) => {
-//     console.log(fiveStar);
-//     singleCustomerDtls = {
-//       pic: customerDtls,
-//       rating: singleRating.rating,
-//       comment: singleRating.comment,
-//     };
-//     customerDetails.push[singleCustomerDtls];
-//   });
-//   console.log(customerDetails);
-//   fiveStar = fiveStar.length;
-//   fourStar = fourStar.length;
-//   threeStar = threeStar.length;
-//   twoStar = twoStar.length;
-//   oneStar = oneStar.length;
-
-//   const totalRating = oneStar + twoStar + threeStar + fourStar + fiveStar;
-//   let averageRating =
-//     (1 * oneStar + 2 * twoStar + 3 * threeStar + 4 * fourStar + 5 * fiveStar) /
-//     totalRating;
-//   averageRating = averageRating.toFixed(1);
-//   const address = req.customer.address[0];
-
-//   const reviewDtls = {
-//     averageRating: averageRating,
-//     fiveStar: fiveStar,
-//     fourStar: fourStar,
-//     threeStar: threeStar,
-//     twoStar: twoStar,
-//     oneStar: oneStar,
-//     totalRating: totalRating,
-//     firstName: address.firstName,
-//     lastName: address.lastName,
-//     profileImage: req.customer.profileImage,
-//   };
-//   data.forEach((singleData)=>{
-//     const singleImg= data.name,
-//     const
-//     singleData.comment
-//   })
-//   console.log(reviewDtls);
-// });
-
-// create --> customer
 router.post("/customer", async function (req, res) {
   var vendorId = req.customer._id;
   var jobId = req.body.jobId;
