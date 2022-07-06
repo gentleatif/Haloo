@@ -76,6 +76,13 @@ module.exports = function (getIOInstance) {
             as: "subcategoryDetails",
           },
         },
+        // remove the job if status is rejected
+        {
+          $match: {
+            $or: [{ status: { $ne: "rejected" } }],
+          },
+        },
+
         // sort by date in desc
         {
           $sort: {
