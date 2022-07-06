@@ -3,101 +3,74 @@ const router = express.Router();
 const Order = require("../../../../models/order/order");
 const Job = require("../../../../models/job");
 const Customer = require("../../../../models/user_management/customer");
+const SubCategory = require("../../../../models/service_info/sub_category");
+
 const Offer = require("../../../../models/offer/offer");
 const { off } = require("../../../../models/order/order");
 const mongoose = require("mongoose");
+
 // sorting by date and filter by live ,completed, cancelled, date
 
-router.post("/", async function (req, res) {
+router.get("/", async function (req, res) {
   // if customer used this coupon in any of his orders then he can't use it again
-  let { jobId, couponId } = req.body;
+  let { subCategoryId, couponId } = req.query;
   let discountAmount;
+  let finalAmount;
   // check if jobId is is provided or not
-  if (!jobId) {
+
+  if (!subCategoryId) {
     return res.status(400).json({
-      message: "jobId is required",
-      field: "jobId",
+      message: "subCategoryId is required",
+      field: "subCategoryId",
     });
   }
   // check if jobId is and valid id or not
-  if (!mongoose.Types.ObjectId.isValid(jobId)) {
+  if (!mongoose.Types.ObjectId.isValid(subCategoryId)) {
     return res.status(400).json({
-      message: "jobId is not valid",
-      field: "jobId",
+      message: "subCategoryId is not valid",
+      field: "subCategoryId",
     });
   }
 
-  let job = await Job.findOne({ _id: jobId });
-
-  // check job is exist or not
-
-  if (!job) {
+  let subCategory = await SubCategory.findOne({ _id: subCategoryId });
+  console.log("subCategory ====>", subCategory);
+  // subCategory will be null if subCategoryId is not valid
+  // other wise make it undefined to avoid error
+  if (!subCategory) {
     return res.status(400).json({
-      message: "Job is not exist",
+      message: "subCategory is not exist",
+      field: "subCategoryId",
     });
   }
-
-  if (job.status === "cancelled") {
-    return res.status(400).json({
-      message: "Job is cancelled",
-    });
+  if (!couponId) {
+    finalAmount = subCategory.price;
   }
-  // check job is completed or not
-  if (job.status === "completed") {
-    return res.status(400).json({
-      message: "Job is completed",
-    });
-  }
-  // check if order is already exist for this jobId
-  let orderExist = await Order.findOne({ jobId: jobId });
-  if (orderExist) {
-    return res.status(400).json({
-      message: "order already exist",
-    });
-  }
-  let finalAmount = Math.round(job.totalAmount);
-
   if (couponId) {
     // verfiy discount available by this discount coupon
     let offer = await Offer.findOne({ code: couponId });
     if (!offer) {
       return res.status(400).send({ error: "Invalid coupon", field: "coupon" });
     }
-    // check if coupon is expired
-    // if (new Date() > offer.endDate || new Date() < offer.startDate) {
-    //   return res.status(400).send({ error: "Coupon expired", field: "coupon" });
-    // }
+
     // check if coupon is used by this customer in any of his orders
-    let order = await Order.findOne({
-      user: req.customer._id,
-      couponId: couponId,
-    });
-    if (order) {
-      return res
-        .status(400)
-        .send({ error: "You can't use this coupon again", field: "coupon" });
-    }
-    //  calculate percentage of discount
-    let totalAmount = job.totalAmount;
+
+    let totalAmount = subCategory.price;
     const discount = offer.discount;
     discountAmount = (totalAmount * discount) / 100;
-    // round off discount amount
-    finalAmount = job.totalAmount - discountAmount;
-    // round off finalAmount
     discountAmount = Math.round(discountAmount);
+    finalAmount = totalAmount - discountAmount;
     finalAmount = Math.round(finalAmount);
   }
+
   try {
-    let order = new Order({
-      total: job.totalAmount,
+    let subCategoryPrice = {
+      totalAmount: subCategory.price,
       discount: discountAmount,
-      finalAmount,
+      finalAmount: finalAmount,
       user: req.customer._id,
       couponId,
-      jobId,
-    });
-    await order.save();
-    return res.send({ order });
+    };
+    return res.send({ subCategoryPrice });
   } catch (error) {
     console.log(error);
     return res.status(400).send({ error: error });

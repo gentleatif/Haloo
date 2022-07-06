@@ -24,7 +24,10 @@ router.get("/", async (req, res) => {
   try {
     let subCategoryName = req.query.subCategoryName;
     // console.log(data);
-    var query = { category: { $regex: new RegExp(subCategoryName, "i") } };
+
+    var query = {
+      category: { $regex: new RegExp("^" + subCategoryName + ".*", "i") },
+    };
     var query2 = { categoryName: { $regex: new RegExp(subCategoryName, "i") } };
 
     let subCategoryData = await SubCategory.find(query);

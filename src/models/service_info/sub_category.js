@@ -1,31 +1,38 @@
-var mongoose = require('mongoose');
+var mongoose = require("mongoose");
 
-const subCategorySchema = new mongoose.Schema({
+const subCategorySchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
     category: {
-        type: String, required: true,
+      type: String,
+      required: true,
     },
     parentCategoryId: {
-        type: mongoose.Schema.Types.ObjectId, ref: 'category'
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "category",
     },
     subCategoryImage: {
       type: String,
     },
     sequenceNumber: {
-        type: Number,
+      type: Number,
     },
     status: {
       type: String,
-      enum: ['active', 'inactive'],
-      default: 'active',
+      enum: ["active", "inactive"],
+      default: "active",
     },
     price: {
       type: Number,
     },
   },
-    {
-      timestamps: true
-    });
-  
-  const SubCategory = mongoose.model('subCategory', subCategorySchema)
-  module.exports = SubCategory;
+  {
+    timestamps: true,
+  }
+);
 
+const SubCategory = mongoose.model("subCategory", subCategorySchema);
+module.exports = SubCategory;

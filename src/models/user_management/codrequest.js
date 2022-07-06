@@ -1,14 +1,14 @@
-var mongoose = require('mongoose');
+var mongoose = require("mongoose");
 
 const codRequestSchema = new mongoose.Schema(
   {
     customerId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'customer',
+      ref: "customer",
     },
     status: {
       type: String,
-      default: 'disabled',
+      default: "disabled",
     },
   },
   {
@@ -16,5 +16,5 @@ const codRequestSchema = new mongoose.Schema(
   }
 );
 
-const CodRequest = mongoose.model('codRequest', codRequestSchema);
+const CodRequest = mongoose.model("codRequest", codRequestSchema);
 module.exports = CodRequest;

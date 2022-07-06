@@ -7,7 +7,9 @@ const ObjectId = mongoose.Types.ObjectId;
 const Customer = require("../../../../models/user_management/customer");
 const socket = require("socket.io");
 const server = require("../../../../../server");
-
+const SubCategory = require("../../../../models/service_info/sub_category");
+const Review = require("../../../../models/review");
+const cron = require("node-cron");
 module.exports = function (getIOInstance) {
   router.get("/", async function (req, res) {
     // sorting by date and filter by live ,completed, cancelled, date
@@ -81,6 +83,10 @@ module.exports = function (getIOInstance) {
           },
         },
       ]);
+      // if loggedIn customer is vendor then hide otp field
+      if (req.customer.type === "vendor") {
+        data.otp = "";
+      }
 
       res.send({ data: data });
     } catch (error) {
@@ -94,15 +100,22 @@ module.exports = function (getIOInstance) {
     console.log("Got body:", req.body);
 
     let _id = req.customer._id;
+    let { subCategoryId, ScheduleTime, address, distance, vendorId } = req.body;
 
-    if (!req.body.vendorId) {
+    if (!distance) {
+      return res.status(400).send({ error: "distance is required" });
+    }
+    if (!address) {
+      return res.status(400).send({ error: "address is required" });
+    }
+    if (!vendorId) {
       return res
         .status(400)
         .send({ error: "Please provide vendor id", field: "vendorId" });
     }
 
     // check vendor exist
-    vendor_details = await Customer.findOne({ _id: req.body.vendorId });
+    vendor_details = await Customer.findOne({ _id: vendorId });
     console.log("vendor", vendor_details);
     if (!vendor_details) {
       return res
@@ -118,60 +131,82 @@ module.exports = function (getIOInstance) {
       });
     }
 
-    let customerId = _id;
-
     let otp = generate_otp(4);
-
-    let {
-      subCategoryId,
-      vendorId,
-      ScheduleTime,
-      address,
-      discount,
-      totalAmount,
-    } = req.body;
-
-    //validate totalAmount
-    if (!totalAmount) {
-      return res
-        .status(400)
-        .send({ error: "Please provide totalAmount", field: "totalAmount" });
-    }
+    // find subCategory by SubCategoryId and get amount and name
+    let subCategory = await SubCategory.findOne({
+      _id: subCategoryId,
+    });
+    let subCategoryImg = subCategory.subCategoryImage;
+    let subCategoryName = subCategory.name;
+    // let totalAmount = subCategory.price;
+    // temporary hardcoded
+    let totalAmount = "83";
+    let finalAmount = "83";
 
     let item = new Job({
-      subCategoryId,
-      vendorId,
-      ScheduleTime,
+      subCategoryImg,
       totalAmount,
-      address,
+      finalAmount,
+      subCategoryId,
       otp,
-      discount,
       customerId: _id,
+      subCategoryName,
     });
+    // socket to vendor
+    console.log("customer id ====>", _id);
+    // find all rating of vendorId calculate avg of this vendor
+    let customerAvgRating = await Review.find({
+      customerId: req.customer._id,
+    }).then((data) => {
+      let sum = 0;
+      data.forEach((element) => {
+        sum += element.rating;
+      });
+      return sum / data.length;
+    });
+    console.log("customerAvgRating", customerAvgRating);
 
-    //  if vendor socket id then send socket request to it
-    // if (vendor_details.socketId) {
-
-    //     var socket_id = vendor_details.socketId;
-    //     var socket_data = {
-    //         type: 'request',
-    //         data: {
-    //             customerId: _id,
-    //             vendorId: req.body.vendorId,
-    //             _id: item.id
-    //         }
-    //     }
-    //     console.log('socket_data', socket_data);
-
-    //     getIOInstance().to(socket_id).emit('request', socket_data);
-
-    // }
-
+    // find socket of this customer
+    console.log("vendorId ====>", vendorId);
+    let vendor = await Customer.findOne({ _id: vendorId });
+    let vendorSocketId = vendor.socketId;
+    console.log("vendorSocketId ====>", vendorSocketId);
+    // socket data
+    var socket_data = {
+      type: "job_alert",
+      data: {
+        customerId: req.customer._id,
+        vendorId: vendorId,
+        Service: subCategoryName,
+        customerName: `${req.customer.firstName} ${req.customer.lastName}`,
+        avgRating: customerAvgRating.toFixed(2),
+        address: address,
+        distance: `${distance} km`,
+      },
+    };
+    console.log("socket_data", socket_data);
+    // need to send lat lon
+    if (!ScheduleTime) {
+      io.to(vendorSocketId).emit("job_alert", socket_data);
+    }
+    if (ScheduleTime) {
+      // send socket to vendor at scheduled time
+      let date = new Date(ScheduleTime);
+      let time = date.getTime();
+      console.log("time  ====>", time);
+      // convert time to minutes
+      let minutes = time / 1000 / 60;
+      // schedule job at this time
+      cron.schedule(`*/${minutes} * * * *`, async () => {
+        io.to(vendorSocketId).emit("job_alert", socket_data);
+      });
+    }
+    // socket to vendor
     item
       .save(item)
       .then(function (item) {
         console.log(item);
-        res.sendStatus(200);
+        res.status(200).send({ data: item });
       })
       .catch((error) => {
         //error handle
@@ -255,6 +290,59 @@ module.exports = function (getIOInstance) {
       return res.status(400).send({ error: "You are not a vendor" });
     }
 
+    // check job.schedule exist
+    let job = await Job.findOne({
+      _id: _id,
+    });
+    // if job.schedule exist can not accept job before schedule time
+    if (job.ScheduleTime) {
+      // check job.schedule is past
+      let date = new Date(job.ScheduleTime);
+      let time = date.getTime();
+      let currentTime = new Date().getTime();
+      if (currentTime < time) {
+        return res.status(400).send({ error: "Job is not scheduled yet" });
+      }
+    }
+    // can accept job 3min after job.schedule time
+    if (job.ScheduleTime) {
+      // check job.schedule is past
+      let date = new Date(job.ScheduleTime);
+      let time = date.getTime();
+      let currentTime = new Date().getTime();
+      //  not allow to accept job after 3min of job.schedule time
+      if (currentTime > time + 180000) {
+        return res.status(400).send({ error: "Job is expired" });
+      }
+    }
+    if (!job.scheduleTime) {
+      // can't accept job after 3min of job created at
+      let date = new Date(job.createdAt);
+      let time = date.getTime();
+      let currentTime = new Date().getTime();
+      //  not allow to accept job after 3min of job created at
+      if (currentTime > time + 180000) {
+        return res.status(400).send({ error: "Job is expired" });
+      }
+    }
+
+    let customerId = Job.findOne({ _id: _id }).customerId;
+    // find socket of this customer
+    customerSocketId = Customer.findOne({ _id: customerId }).socketId;
+    // send socket request to this customer
+    if (customerSocketId) {
+      var socket_data = {
+        type: "accept",
+        data: {
+          customerId: customerId,
+          vendorId: req.customer._id,
+          _id: _id,
+        },
+      };
+      console.log("socket_data", socket_data);
+      io.to(customerSocketId).emit("accept", socket_data);
+    }
+
     Job.updateOne(
       { _id: _id, vendorId: req.customer._id },
       { $set: { status: "upcoming" } }
@@ -288,6 +376,52 @@ module.exports = function (getIOInstance) {
     req.customer._id = ObjectId(req.customer._id);
 
     let { rejectReason } = req.body;
+    if (rejectType == "vendor") {
+      // socket start
+      let job = Job.findOne({ _id: _id });
+      let customerId = job.customerId;
+      // find socket of this customer
+      let customer = Customer.findOne({ _id: customerId });
+      let customerSocketId = customer.socketId;
+
+      // send socket request to this customer
+      if (customerSocketId) {
+        var socket_data = {
+          type: "reject",
+          data: {
+            customerId: customerId,
+            vendorId: req.customer._id,
+            _id: _id,
+          },
+        };
+        console.log("socket_data", socket_data);
+        io.to(customerSocketId).emit("reject", socket_data);
+      }
+      // socket end
+    }
+    if (rejectType == "customer") {
+      // socket start
+      let job = await Job.findOne({ _id: _id });
+      let vendorId = job.vendorId;
+
+      // find socket of this customer
+      let vendor = await Customer.findOne({ _id: vendorId });
+      let vendorSocketId = vendor.socketId;
+      // send socket request to this customer
+      if (vendorSocketId) {
+        var socket_data = {
+          type: "reject",
+          data: {
+            customerId: req.customer._id,
+            vendorId: vendorId,
+            _id: _id,
+          },
+        };
+        console.log("socket_data", socket_data);
+        io.to(vendorSocketId).emit("reject", socket_data);
+      }
+      // socket end
+    }
 
     Job.updateOne(
       {
@@ -335,6 +469,27 @@ module.exports = function (getIOInstance) {
     })
       .then(function (item) {
         if (item.otp == otp) {
+          // send socket request to custome to make payment
+          let job = Job.findOne({ _id: _id });
+          let customerId = job.customerId;
+          // find socket of this customer
+          let customer = Customer.findOne({ _id: customerId });
+          let customerSocketId = customer.socketId;
+          // send socket request to this customer
+          if (customerSocketId) {
+            var socket_data = {
+              type: "payment",
+              data: {
+                customerId: customerId,
+                vendorId: req.user._id,
+                _id: _id,
+              },
+            };
+            console.log("socket_data", socket_data);
+            io.to(customerSocketId).emit("payment", socket_data);
+          }
+          // socket end
+
           Job.updateOne(
             {
               _id: _id,

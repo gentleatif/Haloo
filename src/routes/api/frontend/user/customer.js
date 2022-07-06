@@ -421,19 +421,6 @@ router.put("/", async function (req, res) {
     ) {
       update_query.completedProfile = req.body.completedProfile;
     }
-
-    // if(req.body.stateId && req.body.stateId != data.stateId){
-    //     update_query.stateId = req.body.stateId;
-    // }
-    //
-    // if(req.body.cityId && req.body.cityId != data.cityId){
-    //     update_query.cityId = req.body.cityId;
-    // }
-
-    // if(req.body.countryCode && req.body.countryCode !== customer.countryCode){
-    //     update_query.countryCode = req.body.countryCode;
-    // }
-
     //  update element in mongodb put
     Customer.updateOne({ _id: _id }, { $set: update_query })
       .then((item) => {

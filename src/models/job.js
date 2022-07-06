@@ -28,12 +28,19 @@ const jobSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "subCategory",
     },
+    subCategoryName: {
+      type: String,
+    },
+    subCategoryImg: {
+      type: String,
+    },
     vendorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "customer",
     },
     discount: {
       type: Number,
+      default: 0,
     },
     totalAmount: {
       type: Number,
@@ -63,6 +70,9 @@ const jobSchema = new mongoose.Schema(
     status: {
       type: String,
       default: "pending",
+    },
+    razorPayOrderId: {
+      type: String,
     },
   },
   {

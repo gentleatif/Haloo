@@ -7,13 +7,42 @@ const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 const SubCategory = require("../../../../models/service_info/sub_category");
 
+// function to calculate distance between two points in km's in javascript
+//This function takes in latitude and longitude of two location and returns the distance between them as the crow flies (in km)
+function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+  var R = 6371; // km
+  var dLat = toRad(lat2 - lat1);
+  var dLon = toRad(lon2 - lon1);
+  var lat1 = toRad(lat1);
+  var lat2 = toRad(lat2);
+
+  var a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  var d = R * c;
+  return d;
+}
+
+// Converts numeric degrees to radians
+function toRad(Value) {
+  return (Value * Math.PI) / 180;
+}
+
 router.get("/", async (req, res) => {
   console.log("Got query:", req.query);
   console.log("below is your columnName and columnValue");
 
-  let { columnName, sort } = req.query;
+  let { columnName, sort, lat, lng } = req.query;
+  // delete lat and lng from query
+  delete req.query.lat;
+  delete req.query.lng;
+  if (columnName === "distance") {
+    columnName = "nearestDistance";
+  }
+
   console.log("Got columnName:", columnName);
-  if (columnName === "avgRating") {
+  if (sort) {
     sort = parseInt(sort);
   }
   if (columnName === "" || columnName === undefined || columnName === null) {
@@ -43,29 +72,14 @@ router.get("/", async (req, res) => {
   }
 
   console.log("Got query:", req.query);
+  const sortMethod = {
+    columnName: sort,
+  };
+
   console.log("sorting method ===>", columnName, sort);
 
+  console.log("sortMethod =====>", sortMethod);
   try {
-    // data = await Customer.find(findQuery);
-
-    //add values from query search_query
-    // if(req.query.jobSkill){
-    //     req.query.jobSkill = new RegExp(req.query.jobSkill, 'i')
-    // }
-
-    // find id of job skill contain name from query
-    // if (req.query.jobSkills) {
-    //     var jobSkillsSearch = await SubCategory.find({ category: new RegExp(req.query.jobSkills, 'i') })
-    //         // console.log('jobSkill:', jobSkillsSearch);
-    //     var jobSkillId = []
-    //     for (var i = 0; i < jobSkillsSearch.length; i++) {
-    //         jobSkillId.push(jobSkillsSearch[i]._id)
-    //     }
-    //     req.query.jobSkills = { $in: jobSkillId }
-    // }
-    // console.log('Got query:', req.query);
-
-    // find all vender contain jobSkillId in jobSkills
     if (req.query.jobSkillId) {
       req.query.jobSkills = { $in: [ObjectId(req.query.jobSkillId)] };
       delete req.query.jobSkillId;
@@ -87,33 +101,6 @@ router.get("/", async (req, res) => {
           as: "jobDetails",
         },
       },
-      // {
-      //     $lookup: {
-      //         from: 'categories',
-      //         localField: 'jobSkills',
-      //         foreignField: '_id',
-      //         as: 'jobSkills'
-      //     }
-      // },
-      // {
-      //   $lookup: {
-      //     from: "reviews",
-      //     let: { cId: "$_id" },
-
-      //     pipeline: [
-      //       {
-      //         $match: {
-      //           $expr: {
-      //             $eq: ["$" + req.query.type + "Id", { $toObjectId: "$$cId" }],
-      //           },
-      //           reviewFor: req.query.type,
-      //         },
-      //       },
-      //       { $group: { _id: null, avg: { $avg: "$rating" } } },
-      //     ],
-      //     as: "reviewDetails",
-      //   },
-      // },
       {
         $addFields: { noOfJobs: { $size: "$jobDetails" } },
       },
@@ -186,7 +173,7 @@ router.get("/", async (req, res) => {
       },
       // if avgRating is null then set it to 0
       {
-        $sort: { avgRating: sort },
+        $sort: sortMethod,
       },
     ]);
     console.log("sorting method ===>", columnName, sort);
@@ -219,6 +206,45 @@ router.get("/", async (req, res) => {
         } else {
           data[i].profileImage = null;
         }
+      }
+    }
+    // if customer send his lat lng in query then calculate distance from customer to vendor
+    if (lat && lng) {
+      for (let i = 0; i < data.length; i++) {
+        console.log(data[i].address);
+        data[i].address.forEach((singleAddrress) => {
+          console.log("singleAddress===>", singleAddrress);
+          //  return the address which is nearest to customer
+          if (singleAddrress.lat && singleAddrress.lng) {
+            let distance = getDistanceFromLatLonInKm(
+              lat,
+              lng,
+              singleAddrress.lat,
+              singleAddrress.lng
+            );
+            console.log("distance =====>", distance);
+            data[i].distance = distance;
+
+            // add distance field in each address
+            // return distance in km as whole number
+            singleAddrress.distance = Math.round(distance);
+            // return the address which is nearest to customer
+          }
+        });
+      }
+
+      for (let i = 0; i < data.length; i++) {
+        let nearestAddress = data[i].address.reduce((acc, curr) => {
+          return acc.distance < curr.distance ? acc : curr;
+        });
+        // add nearest address field in each vendor
+        data[i].nearestAddress = nearestAddress;
+        data[i].nearestDistance = nearestAddress.distance;
+        delete nearestAddress.distance;
+        // sort by nearest distance
+        data.sort((a, b) => {
+          return a.nearestDistance - b.nearestDistance;
+        });
       }
     }
 

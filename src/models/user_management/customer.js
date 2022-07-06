@@ -85,6 +85,12 @@ const customerSchema = new mongoose.Schema(
           ref: "states",
         },
         addressType: String,
+        lat: {
+          type: Number,
+        },
+        lng: {
+          type: Number,
+        },
       },
     ],
     // pincode: {

@@ -1,4 +1,5 @@
 require("dotenv").config();
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
@@ -7,6 +8,7 @@ const path = require("path");
 //file import
 const config = require("./config");
 const Contactus = require("./src/models/contactus");
+const Job = require("./src/models/job");
 //creating express intances
 const app = express();
 
@@ -34,30 +36,58 @@ db.once("open", function () {
   console.log("Connection succeeded.");
 });
 
-// forwarding models to routes
-app.use((req, res, next) => {
-  console.log(`Request_Endpoint: ${req.method} ${req.url}`);
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Credentials", true);
-  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin,X-Requested-With,Content-Type,Accept,content-type,application/json"
-  );
-
-  next();
-});
-
-// Require Route
 const router = require("./src/routes")();
 app.use(router);
 
 const port = process.env.PORT || 3000;
+// create http server and run socket io
+const server = app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
+// run socket io
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "http://localhost:3001",
+    methods: ["GET", "POST"],
+  },
+}); // listen to connection
+io.on("connection", (socket) => {
+  console.log("New client connected");
+  // save socket id of user to mongodb
+  socket.on("save-socket-id", (data) => {
+    // receive customerId and socketId
+    // save socketId to in Customer collection
+    Customer.findOneAndUpdate(
+      { _id: data.customerId },
+      { $set: { socketId: data.socketId } },
+      { new: true },
+      (err, customer) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(customer);
+        }
+      }
+    );
+  });
 
-app.listen(port, function () {
-  console.log("listining to port " + port);
+  // receive lat lon and jobId from customer using socket.io
+  socket.on("sendLocation", async (data) => {
+    console.log("data", data);
+    // 1. lat
+    // 2. lon
+    // 3. jobId
+    // find job by jobId
+    const job = await Job.findOne({ _id: data.jobId });
+    const vendor = await Customer.findOne({ _id: job.vendorId });
+    const vendorSocketId = vendor.socketId;
+    // send lat lon to vendor
+    socket.broadcast.to(vendorSocketId).emit("sendLocation", data);
+    // socket.broadcast.to(socketid).emit("message", "for your eyes only");
+  });
 });
 
+global.io = io;
 // require("dotenv").config();
 // var express = require('express')
 // var bodyParser = require('body-parser')
