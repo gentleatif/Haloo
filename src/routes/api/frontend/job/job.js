@@ -301,8 +301,13 @@ module.exports = function (getIOInstance) {
     let job = await Job.findOne({
       _id: _id,
     });
+    //  if job is not exist
+    if (!job) {
+      return res.status(400).send({ error: "Job not found" });
+    }
+
     // if job.schedule exist can not accept job before schedule time
-    if (job.ScheduleTime) {
+    if (job?.ScheduleTime) {
       // check job.schedule is past
       let date = new Date(job.ScheduleTime);
       let time = date.getTime();
@@ -312,7 +317,7 @@ module.exports = function (getIOInstance) {
       }
     }
     // can accept job 3min after job.schedule time
-    if (job.ScheduleTime) {
+    if (job?.ScheduleTime) {
       // check job.schedule is past
       let date = new Date(job.ScheduleTime);
       let time = date.getTime();
@@ -322,8 +327,12 @@ module.exports = function (getIOInstance) {
         return res.status(400).send({ error: "Job is expired" });
       }
     }
-    if (!job.scheduleTime) {
+    console.log("job =====>", job);
+
+    if (!job?.scheduleTime) {
       // can't accept job after 3min of job created at
+      console.log("job =====>", job);
+
       let date = new Date(job.createdAt);
       let time = date.getTime();
       let currentTime = new Date().getTime();
