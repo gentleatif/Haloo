@@ -53,7 +53,7 @@ const io = require("socket.io")(server, {
   },
 });
 
-socketio.set("transports", ["websocket"]);
+socket.set("transports", ["websocket"]);
 
 // listen to connection
 io.on("connect", (socket) => {
