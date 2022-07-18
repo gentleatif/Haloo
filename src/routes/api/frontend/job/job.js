@@ -13,7 +13,6 @@ const cron = require("node-cron");
 module.exports = function (getIOInstance) {
   router.get("/", async function (req, res) {
     // sorting by date and filter by live ,completed, cancelled, date
-    console.log("Got query:", req.query);
     if (req.query.columnName) {
       delete req.query.columnName;
     }
@@ -82,8 +81,41 @@ module.exports = function (getIOInstance) {
             $or: [{ status: { $ne: "rejected" } }],
           },
         },
-
-        // sort by date in desc
+        // rating of that job to customer
+        {
+          $lookup: {
+            from: "reviews",
+            localField: "_id",
+            foreignField: "jobId",
+            // start
+            pipeline: [
+              {
+                $match: {
+                  reviewFor: req.customer.type,
+                },
+              },
+            ],
+            as: "reviews",
+          },
+        },
+        {
+          $unwind: {
+            path: "$reviews",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        // add rating field and remove reviews
+        {
+          $addFields: {
+            rating: "$reviews.rating",
+          },
+        },
+        // remove reviews field
+        {
+          $project: {
+            reviews: 0,
+          },
+        },
         {
           $sort: {
             createdAt: -1,

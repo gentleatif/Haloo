@@ -38,6 +38,9 @@ db.once("open", function () {
 
 const router = require("./src/routes")();
 app.use(router);
+app.get("/", (req, res) => {
+  res.send("Hello World");
+});
 
 const port = process.env.PORT || 3000;
 // create http server and run socket io
@@ -48,7 +51,8 @@ const server = app.listen(port, () => {
 const io = require("socket.io")(server, {
   cors: {
     origin: "http://localhost:3001",
-    methods: ["GET", "POST"],
+    // allow all methods
+    methods: ["GET,HEAD,PUT,PATCH,POST,DELETE"],
   },
 }); // listen to connection
 io.on("connection", (socket) => {

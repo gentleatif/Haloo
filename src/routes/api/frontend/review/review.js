@@ -140,6 +140,17 @@ router.post("/customer", async function (req, res) {
   } else if (reviewFor != "customer" && reviewFor != "vendor") {
     return res.send({ error: "Invalid reviewFor value, customer or vendor" });
   }
+  // check if review already exists
+  let review = await Review.findOne({
+    customerId: customerId,
+    vendorId: vendorId,
+    jobId: jobId,
+    reviewFor: reviewFor,
+  });
+  if (review) {
+    return res.send({ error: "Review already exists" });
+  }
+
   var item = new Review({
     customerId,
     vendorId,
@@ -178,6 +189,17 @@ router.post("/vendor", async function (req, res) {
   } else if (reviewFor != "customer" && reviewFor != "vendor") {
     return res.send({ error: "Invalid reviewFor value, customer or vendor" });
   }
+  // check if review already exists
+  let review = await Review.findOne({
+    customerId: customerId,
+    vendorId: vendorId,
+    jobId: jobId,
+    reviewFor: reviewFor,
+  });
+  if (review) {
+    return res.send({ error: "Review already exists" });
+  }
+
   var item = new Review({
     customerId,
     vendorId,
