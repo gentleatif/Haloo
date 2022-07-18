@@ -52,8 +52,7 @@ const io = require("socket.io")(server, {
     methods: ["GET", "POST"],
   },
 });
-
-socket.set("transports", ["websocket"]);
+io.set("transports", ["websocket"]);
 
 // listen to connection
 io.on("connect", (socket) => {
