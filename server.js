@@ -9,6 +9,7 @@ const path = require("path");
 const config = require("./config");
 const Contactus = require("./src/models/contactus");
 const Job = require("./src/models/job");
+const Customer = require("./src/models/user_management/customer");
 //creating express intances
 const app = express();
 
@@ -38,9 +39,6 @@ db.once("open", function () {
 
 const router = require("./src/routes")();
 app.use(router);
-app.get("/", (req, res) => {
-  res.send("Hello World");
-});
 
 const port = process.env.PORT || 3000;
 // create http server and run socket io
@@ -51,11 +49,10 @@ const server = app.listen(port, () => {
 const io = require("socket.io")(server, {
   cors: {
     origin: "http://localhost:3001",
-    // allow all methods
-    methods: ["GET,HEAD,PUT,PATCH,POST,DELETE"],
+    methods: ["GET", "POST"],
   },
 }); // listen to connection
-io.on("connection", (socket) => {
+io.on("connect", (socket) => {
   console.log("New client connected");
   // save socket id of user to mongodb
   socket.on("save-socket-id", (data) => {
@@ -74,7 +71,9 @@ io.on("connection", (socket) => {
       }
     );
   });
-
+  socket.on("message", (data) => {
+    io.emit("message", "You are connected to server successfully");
+  });
   // receive lat lon and jobId from customer using socket.io
   socket.on("sendLocation", async (data) => {
     console.log("data", data);
