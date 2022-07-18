@@ -51,7 +51,11 @@ const io = require("socket.io")(server, {
     origin: "http://localhost:3001",
     methods: ["GET", "POST"],
   },
-}); // listen to connection
+});
+
+socketio.set("transports", ["websocket"]);
+
+// listen to connection
 io.on("connect", (socket) => {
   console.log("New client connected");
   // save socket id of user to mongodb
