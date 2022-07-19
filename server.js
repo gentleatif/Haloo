@@ -40,7 +40,7 @@ db.once("open", function () {
 const router = require("./src/routes")();
 app.use(router);
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8000;
 // create http server and run socket io
 const server = app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
@@ -59,6 +59,7 @@ io.on("connect", (socket) => {
   console.log("New client connected");
   // save socket id of user to mongodb
   socket.on("save-socket-id", (data) => {
+    console.log(data);
     // receive customerId and socketId
     // save socketId to in Customer collection
     Customer.findOneAndUpdate(
