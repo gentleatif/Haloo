@@ -391,6 +391,24 @@ module.exports = function (getIOInstance) {
       io.to(customerSocketId).emit("accept", socket_data);
     }
 
+    // keep sending current lat , lon to customer after every 2sec
+    let customer = await Customer.findOne({ _id: customerId });
+    let vendor = await Vendor.findOne({ _id: vendorId });
+
+    io.on("sendLocation", async (data) => {
+      console.log("data", data);
+      // 1. lat
+      // 2. lon
+      // 3. jobId
+      // find job by jobId
+      const job = await Job.findOne({ _id: data.jobId });
+      const customer = await Customer.findOne({ _id: job.customerId });
+      const customerSocketId = customer.socketId;
+      // send lat lon to vendor
+      io.broadcast.to(customerSocketId).emit("sendLocation", data);
+      // socket.broadcast.to(socketid).emit("message", "for your eyes only");
+    });
+
     Job.updateOne(
       { _id: _id, vendorId: req.customer._id },
       { $set: { status: "upcoming" } }

@@ -70,6 +70,10 @@ io.on("connect", (socket) => {
         if (err) {
           console.log(err);
         } else {
+          // reply back to same socket
+          socket.emit("socket-id-saved", {
+            socketId: customer.socketId,
+          });
           console.log(customer);
         }
       }
