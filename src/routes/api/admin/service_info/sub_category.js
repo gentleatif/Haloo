@@ -54,7 +54,7 @@ router.get("/", async (req, res) => {
 
 router.post(
   "/",
-  upload.fields([{ name: "image", maxCount: 1 }]),
+  upload.fields([{ name: "subCategoryImage", maxCount: 1 }]),
   async (req, res) => {
     console.log("Got query:", req.query);
     console.log("Got body:", req.body);
@@ -62,7 +62,7 @@ router.post(
     var parentCategoryId = req.body.parentCategoryId;
     // var sequenceNumber = req.body.sequenceNumber;
     var status = req.body.status;
-    var name = req.body.name;
+    var name = req.body.subCategoryName;
     var price = req.body.price;
     if (!name) {
       return res.status(400).send({ error: "name is required", field: "name" });
@@ -86,10 +86,10 @@ router.post(
     // var seq = await getNextSequence("subCategory");
     // console.log("seq:", seq);
     var image;
-    if (req.files && req.files.image) {
-      console.log("Got image:", req.files.image);
-      image = "uploads/images/" + req.files.image[0].filename;
-      console.log("img===>", req.files.image[0].filename);
+    if (req.files && req.files.subCategoryImage) {
+      console.log("Got image:", req.files.subCategoryImage);
+      image = "uploads/images/" + req.files.subCategoryImage[0].filename;
+      console.log("img===>", req.files.subCategoryImage[0].filename);
     }
 
     const categoryExists = await Category.exists({ _id: parentCategoryId });
@@ -98,11 +98,10 @@ router.post(
       res.send({ error: "Parent category does not exist" });
     } else {
       var item = new SubCategory({
-        name,
+        subCategoryName: name,
         category,
         parentCategoryId,
         subCategoryImage: image,
-        // sequenceNumber,
         status,
         price,
       });

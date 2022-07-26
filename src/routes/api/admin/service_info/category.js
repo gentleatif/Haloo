@@ -25,7 +25,7 @@ router.get("/", async (req, res) => {
 
 router.post(
   "/",
-  upload.fields([{ name: "image", maxCount: 1 }]),
+  upload.fields([{ name: "categoryImage", maxCount: 1 }]),
   async (req, res) => {
     console.log("Got query:", req.query);
     console.log("Got body:", req.body);
@@ -51,10 +51,10 @@ router.post(
     var seq = await getNextSequence("category");
     console.log("seq:", seq);
     var image;
-    if (req.files && req.files.image) {
-      console.log("Got image:", req.files.image);
-      image = "uploads/images/" + req.files.image[0].filename;
-      console.log("img===>", req.files.image[0].filename);
+    if (req.files && req.files.categoryImage) {
+      console.log("Got image:", req.files.categoryImage);
+      image = "uploads/images/" + req.files.categoryImage[0].filename;
+      console.log("img===>", req.files.categoryImage[0].filename);
     }
 
     var item = new Category({
