@@ -83,14 +83,26 @@ router.post(
         field: "parentCategoryId",
       });
     }
+
+    let checkCategory = await SubCategory.findOne({
+      subCategoryName: name,
+    });
+    if (checkCategory) {
+      return res
+        .status(400)
+        .send({ error: "subCategory already exist", field: "subCategoryName" });
+    }
+
     // var seq = await getNextSequence("subCategory");
     // console.log("seq:", seq);
     var image;
+    console.log("req.files ===>", req.files);
     if (req.files && req.files.subCategoryImage) {
       console.log("Got image:", req.files.subCategoryImage);
       image = "uploads/images/" + req.files.subCategoryImage[0].filename;
       console.log("img===>", req.files.subCategoryImage[0].filename);
     }
+    console.log("uploaded img===>", image);
 
     const categoryExists = await Category.exists({ _id: parentCategoryId });
     console.log(categoryExists);
