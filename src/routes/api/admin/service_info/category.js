@@ -53,7 +53,8 @@ router.post(
     var image;
     if (req.files && req.files.categoryImage) {
       console.log("Got image:", req.files.categoryImage);
-      image = "uploads/images/" + req.files.categoryImage[0].filename;
+      image =
+        "uploads/images/categoryImage/" + req.files.categoryImage[0].filename;
       console.log("img===>", req.files.categoryImage[0].filename);
     }
 
@@ -141,4 +142,5 @@ router.put(
     }
   }
 );
+
 module.exports = router;
