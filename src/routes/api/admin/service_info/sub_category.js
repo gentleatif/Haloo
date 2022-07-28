@@ -99,9 +99,12 @@ router.post(
     console.log("req.files ===>", req.files);
     if (req.files && req.files.subCategoryImage) {
       console.log("Got image:", req.files.subCategoryImage);
-      image = "uploads/images/" + req.files.subCategoryImage[0].filename;
+      image =
+        "uploads/images/subCategoryImage/" +
+        req.files.subCategoryImage[0].filename;
       console.log("img===>", req.files.subCategoryImage[0].filename);
     }
+
     console.log("uploaded img===>", image);
 
     const categoryExists = await Category.exists({ _id: parentCategoryId });
@@ -164,7 +167,7 @@ router.delete("/", async function (req, res) {
 
 router.put(
   "/",
-  upload.fields([{ name: "image", maxCount: 1 }]),
+  upload.fields([{ name: "subCategoryImage", maxCount: 1 }]),
   async function (req, res) {
     console.log("Got query:", req.query);
     console.log("Got body:", req.body);
@@ -178,16 +181,19 @@ router.put(
     } else if (!_id) {
       res.send({ error: "No collection with this id" });
     } else {
-      if (req.files && req.files.image) {
-        req.body.image = "uploads/images/" + req.files.image[0].filename;
-        if (data.image) {
-          fs.unlink(data.image, (err) => {
+      if (req.files && req.files.subCategoryImage) {
+        req.body.subCategoryImage =
+          "uploads/images/subCategoryImage/" +
+          req.files.subCategoryImage[0].filename;
+        if (data.subCategoryImage) {
+          fs.unlink(data.subCategoryImage, (err) => {
             if (err) throw err;
             console.log("successfully deleted image");
           });
         }
       }
 
+      console.log("req.body===>", req.body);
       //  update element in mongodb put
       SubCategory.updateOne({ _id: _id }, { $set: req.body })
         .then(function (item) {

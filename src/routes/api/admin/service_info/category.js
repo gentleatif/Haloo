@@ -100,63 +100,45 @@ router.delete("/", async function (req, res) {
   }
 });
 
-router.put("/", async function (req, res) {
-  console.log("Got query:", req.query);
-  console.log("Got body:", req.body);
-  var _id = req.query._id;
-  data = await Category.findOne({
-    _id: _id,
-  });
-  console.log(data);
-  if (!_id) {
-    res.send({ error: "Please provide an id" });
-  } else if (!data) {
-    res.send({ error: "No collection with this id" });
-  } else {
-    //  update element in mongodb put
-    // if (req.files.image) {
-    //     req.body.image = 'uploads/images/' + req.files.image[0].filename;
-    //     if (data.image) {
-    //         fs.unlink(data.image, (err) => {
-    //             if (err) throw err;
-    //             console.log('successfully deleted image');
-    //         });
-    //     }
-
-    // }
-    // if (req.files.hoverImage) {
-    //     req.body.hoverImage = 'uploads/images/' + req.files.hoverImage[0].filename;
-    //     if (data.hoverImage) {
-    //         fs.unlink(data.hoverImage, (err) => {
-    //             if (err) throw err;
-    //             console.log('successfully deleted image');
-    //         });
-    //     }
-    // }
-    const { categoryName, status } = req.body;
-
-    if (categoryName) {
-      let checkCategory = await Category.findOne({
-        categoryName: categoryName,
-        _id: { $ne: _id },
-      });
-      if (checkCategory) {
-        return res
-          .status(400)
-          .send({ error: "Category already exist", field: "categoryName" });
+router.put(
+  "/",
+  upload.fields([{ name: "categoryImage", maxCount: 1 }]),
+  async function (req, res) {
+    console.log("Got query:", req.query);
+    console.log("Got body:", req.body);
+    var _id = req.query._id;
+    data = await Category.findOne({
+      _id: _id,
+    });
+    console.log(data);
+    if (!_id) {
+      res.send({ error: "Please provide an id" });
+    } else if (!_id) {
+      res.send({ error: "No collection with this id" });
+    } else {
+      if (req.files && req.files.categoryImage) {
+        req.body.categoryImage =
+          "uploads/images/categoryImage/" + req.files.categoryImage[0].filename;
+        if (data.categoryImage) {
+          fs.unlink(data.categoryImage, (err) => {
+            if (err) throw err;
+            console.log("successfully deleted image");
+          });
+        }
       }
+
+      console.log("req.body===>", req.body);
+      //  update element in mongodb put
+      Category.updateOne({ _id: _id }, { $set: req.body })
+        .then(function (item) {
+          res.sendStatus(200);
+        })
+        .catch((error) => {
+          //error handle
+          console.log(error);
+          res.sendStatus(400);
+        });
     }
-
-    Category.updateOne({ _id: _id }, { $set: { categoryName, status } })
-      .then(function (item) {
-        res.sendStatus(200);
-      })
-      .catch((error) => {
-        //error handle
-        console.log(error);
-        res.sendStatus(400);
-      });
   }
-});
-
+);
 module.exports = router;
