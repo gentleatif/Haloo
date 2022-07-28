@@ -55,6 +55,7 @@ router.post(
       console.log("Got image:", req.files.categoryImage);
       image =
         "uploads/images/categoryImage/" + req.files.categoryImage[0].filename;
+
       console.log("img===>", req.files.categoryImage[0].filename);
     }
 
