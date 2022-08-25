@@ -9,6 +9,13 @@ const ObjectId = mongoose.Types.ObjectId;
 const getNextSequence = require("../../../../utils/counter");
 
 router.get("/", async (req, res) => {
+  // write a function to add two number
+  function add(a, b) {
+    return a + b;
+  }
+  // call the function
+  var result = add(10, 20);
+
   console.log("Got query:", req.query);
   // var findQuery = {};
   // console.log('Got query:', req.query.length);
