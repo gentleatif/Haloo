@@ -12,6 +12,9 @@ const Job = require("./src/models/job");
 const Customer = require("./src/models/user_management/customer");
 //creating express intances
 const app = express();
+const formData = require("express-form-data");
+
+app.use(formData.parse());
 
 app.use(cors());
 
