@@ -201,7 +201,7 @@ router.put("/", async function (req, res) {
       Support.findOneAndUpdate(
         { _id: req.query.id },
         { $set: { query, supportImage, type } },
-        { new: true }
+        { returnOriginal: false, upsert: true }
       )
         .then((item) => {
           // return res.sendStatus(200);

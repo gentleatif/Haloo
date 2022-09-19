@@ -248,7 +248,11 @@ router.put("/", async function (req, res) {
       comment,
     };
     //  update eleemnt id id mongodb
-    Review.findOneAndUpdate({ _id: _id }, { $set: item }, { new: true })
+    Review.findOneAndUpdate(
+      { _id: _id },
+      { $set: item },
+      { returnOriginal: false, upsert: true }
+    )
       .then(function (item) {
         // res.sendStatus(200);
         return res.status(200).json({ data: item });

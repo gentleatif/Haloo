@@ -57,7 +57,6 @@ router.post("/generate_otp", async (req, res) => {
     if (!customer.type) {
       return res.status(200).json({ data: { id: customer._id } });
     }
-
   } else {
     let otp = generate_otp(4);
     let otpExpiry = Date.now() + 2 * 60 * 100000;

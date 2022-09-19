@@ -425,7 +425,7 @@ router.put("/", async function (req, res) {
     Customer.findOneAndUpdate(
       { _id: _id },
       { $set: update_query },
-      { new: true }
+      { returnOriginal: false, upsert: true }
     )
       .then((item) => {
         return res.status(200).send({ data: item });
@@ -522,7 +522,7 @@ router.put("/upload-image", (req, res) => {
     Customer.findOneAndUpdate(
       { _id: _id },
       { $set: update_query },
-      { new: true }
+      { returnOriginal: false, upsert: true }
     )
       .then((item) => {
         return res.status(200).send({ data: item });
@@ -638,7 +638,7 @@ router.put("/addaddress", async function (req, res) {
   Customer.findOneAndUpdate(
     { _id: _id },
     { $push: { address: newObject }, $set: { formStep, completedProfile } },
-    { new: true }
+    { returnOriginal: false, upsert: true }
   )
     .then((item) => {
       return res.status(200).send({ data: item });
@@ -655,7 +655,7 @@ router.put("/updateaddress", async function (req, res) {
   console.log("user details", req.customer);
   let _id = req.customer._id;
   console.log("Got query:", req.query);
-  console.log("Got body:", req.body);
+  console.log("Got body updateaddress route hit:", req.body);
 
   // validate Object id in req.query
   if (
@@ -676,8 +676,8 @@ router.put("/updateaddress", async function (req, res) {
       param === "apartment" ||
       param === "nearbyLandmark" ||
       param === "pincode" ||
-      param === "city" ||
-      param === "state" ||
+      param === "cityId" ||
+      param === "stateId" ||
       param === "addressType"
     ) {
       updateObj.$set["address.$." + param] = req.body[param];
@@ -695,7 +695,7 @@ router.put("/updateaddress", async function (req, res) {
       ...updateObj,
       $set: { formStep, completedProfile },
     },
-    { returnOriginal: false }
+    { returnOriginal: false, upsert: true }
   )
     .then((item) => {
       console.log("update address===>", item);
@@ -723,7 +723,7 @@ router.delete("/deleteaddress", async function (req, res) {
   Customer.findOneAndUpdate(
     { _id: _id },
     { $pull: { address: { _id: req.body.addressId } } },
-    { new: true }
+    { returnOriginal: false, upsert: true }
   )
     .then((item) => {
       return res.status(200).send({ data: item });

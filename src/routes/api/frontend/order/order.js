@@ -204,7 +204,7 @@ router.put("/", async function (req, res) {
           finalAmount,
           couponId,
         },
-        { returnDocument: "after" }
+        { returnOriginal: false, upsert: true }
       );
 
       let updatedOrder = await Order.findOne({ _id: orderId });

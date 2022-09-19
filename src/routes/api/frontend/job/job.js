@@ -301,7 +301,7 @@ module.exports = function (getIOInstance) {
           ],
         },
         { $set: { subCategoryId, vendorId, ScheduleTime, address, discount } },
-        { new: true }
+        { returnOriginal: false, upsert: true }
       )
         .then(function (item) {
           // res.sendStatus(200);
@@ -414,7 +414,7 @@ module.exports = function (getIOInstance) {
     Job.findOneAndUpdate(
       { _id: _id, vendorId: req.customer._id },
       { $set: { status: "upcoming" } },
-      { new: true }
+      { returnOriginal: false, upsert: true }
     )
       .then(function (item) {
         // res.sendStatus(200);
@@ -493,17 +493,20 @@ module.exports = function (getIOInstance) {
       // socket end
     }
 
-    Job.findByIdAndUpdate(
+    Job.findOneAndUpdate(
       {
         _id: _id,
         $or: [{ customerId: req.customer._id }, { vendorId: req.customer._id }],
       },
       { $set: { status: "cancelled", rejectType, rejectReason } },
-      { new: true }
+      { returnOriginal: false, upsert: true }
     )
       .then(function (item) {
-        // res.sendStatus(200);
+        // return new data not ack, and upsert true
+
         return res.status(200).json({ data: item });
+        console.log("reject job  ===>", item);
+        // res.sendStatus(200);
       })
       .catch((error) => {
         //error handle
@@ -511,7 +514,6 @@ module.exports = function (getIOInstance) {
         res.status(400).send({ error: error });
       });
   });
-
   router.post("/verify_otp", (req, res) => {
     console.log("Got query:", req.query);
     console.log("Got body:", req.body);
@@ -568,7 +570,7 @@ module.exports = function (getIOInstance) {
               $or: [{ customerId: req.user._id }, { vendorId: req.user._id }],
             },
             { $set: { status: "complete" } },
-            { new: true }
+            { returnOriginal: false, upsert: true }
           )
             .then(function (item) {
               // res.sendStatus(200);
