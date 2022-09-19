@@ -22,12 +22,11 @@ module.exports = function (razorpayInstance, getIOInstance) {
 
   // console.log('razorpayInstance', razorpayInstance);
   // console.log('getIOInstance', getIOInstance);
-
+  MainRouter.use("/auth", require("./auth"));
   MainRouter.use("/review", auth, require("./review.js"));
   MainRouter.use("/job", auth, require("./job.js"));
   MainRouter.use("/serviceinfo", auth, require("./service_info"));
   MainRouter.use("/", auth, require("./user_management"));
-  MainRouter.use("/auth", require("./auth"));
   MainRouter.use("/setting", auth, require("./setting"));
   MainRouter.use("/support", auth, require("./support"));
   MainRouter.use("/staticfile", auth, require("./static_file"));
