@@ -67,8 +67,16 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     // Validate user input
-    if (!(email && password)) {
-      return res.status(400).send("All input is required");
+    if (!email) {
+      return res
+        .status(400)
+        .send({ error: "email is required", field: "email" });
+    }
+    if (!password) {
+      // return res.status(400).send("All input is required");
+      return res
+        .status(400)
+        .send({ error: "password is required", field: "password" });
     }
     // Validate if user exist in our database
     const admin = await Admin.findOne({ email });
@@ -122,7 +130,9 @@ router.post("/logout", async (req, res) => {
 
     // Validate user input
     if (!email) {
-      return res.status(400).send("Email is required");
+      return res
+        .status(400)
+        .send({ error: "email is required", field: "email" });
     }
     // Validate if user exist in our database
     const admin = await Admin.findOne({ email });
@@ -133,7 +143,10 @@ router.post("/logout", async (req, res) => {
       await admin.save();
       return res.status(200).send("Successfully logged out");
     }
-    res.status(400).send("No admin with email exist");
+    // res.status(400).send("No admin with email exist");
+    return res
+      .status(400)
+      .send({ error: "No admin with this email exist", field: "email" });
   } catch (err) {
     console.log(err);
   }
@@ -214,7 +227,7 @@ router.post("/forgetpassword", async (req, res) => {
       // });
 
       // send otp to email
-      return res.send({ data: { _id: admin._id } });
+      return res.status(200).send({ data: { _id: admin._id } });
     } catch (error) {
       return res.status(400).send({ error: "Server error" });
     }
@@ -295,12 +308,16 @@ router.post("/setpassword", async (req, res) => {
 
       await admin.save();
 
-      return res.send({ data: admin });
+      return res.status(200).send({ data: admin });
     } else {
-      return res.status(400).send({ error: "OTP does not match" });
+      return res
+        .status(400)
+        .send({ error: "OTP does not match", field: "otp" });
     }
   } else {
-    return res.status(400).send({ error: "No admin with id exist" });
+    return res
+      .status(400)
+      .send({ error: "No admin with id exist", field: "_id" });
   }
 });
 
