@@ -93,7 +93,7 @@ router.put(
       data = await Offer.findOne({
         _id: _id,
       });
-
+      // if image already available
       if (req.files && req.files.image) {
         req.body.image = "uploads/images/" + req.files.image[0].filename;
         if (data.image) {

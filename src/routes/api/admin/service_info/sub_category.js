@@ -64,7 +64,7 @@ router.post(
   upload.fields([{ name: "subCategoryImage", maxCount: 1 }]),
   async (req, res) => {
     console.log("Got query:", req.query);
-    console.log("Got body:", req.body);
+    console.log("Got body: post route hit", req.body);
     var category = req.body.category;
     var parentCategoryId = req.body.parentCategoryId;
     // var sequenceNumber = req.body.sequenceNumber;
@@ -90,7 +90,6 @@ router.post(
         field: "parentCategoryId",
       });
     }
-
     let checkCategory = await SubCategory.findOne({
       subCategoryName: subCategoryName,
     });
@@ -175,7 +174,7 @@ router.put(
   upload.fields([{ name: "subCategoryImage", maxCount: 1 }]),
   async function (req, res) {
     console.log("Got query:", req.query);
-    console.log("Got body:", req.body);
+    console.log("Got body update subcate route hit ===>:", req.body);
     var _id = req.query._id;
     data = await SubCategory.findOne({
       _id: _id,
