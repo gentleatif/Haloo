@@ -584,14 +584,14 @@ router.put("/addaddress", async function (req, res) {
   }
 
   // city
-  if (!req.body.city) {
-    return res.status(400).send({ error: "city is required", field: "city" });
-  }
+  // if (!req.body.city) {
+  //   return res.status(400).send({ error: "city is required", field: "city" });
+  // }
 
   // state
-  if (!req.body.state) {
-    return res.status(400).send({ error: "state is required", field: "state" });
-  }
+  // if (!req.body.state) {
+  //   return res.status(400).send({ error: "state is required", field: "state" });
+  // }
 
   let {
     firstName,
