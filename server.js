@@ -13,7 +13,6 @@ const Customer = require("./src/models/user_management/customer");
 var multer = require("multer");
 const useragent = require("express-useragent");
 
-var forms = multer();
 //creating express intances
 var app = express();
 

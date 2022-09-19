@@ -542,14 +542,18 @@ router.put("/addaddress", async function (req, res) {
   console.log("Got query:", req.query);
   console.log("Got body:", req.body);
 
-  // //first name
-  // if(!req.body.firstName){
-  //     return res.status(400).send({error: 'firstName is required', field: 'firstName'});
+  //first name
+  // if (!req.body.firstName) {
+  //   return res
+  //     .status(400)
+  //     .send({ error: "firstName is required", field: "firstName" });
   // }
-  //
+
   // //last name
-  // if(!req.body.lastName){
-  //     return res.status(400).send({error: 'lastName is required', field: 'lastName'});
+  // if (!req.body.lastName) {
+  //   return res
+  //     .status(400)
+  //     .send({ error: "lastName is required", field: "lastName" });
   // }
 
   // blockNo
@@ -592,6 +596,17 @@ router.put("/addaddress", async function (req, res) {
   // if (!req.body.state) {
   //   return res.status(400).send({ error: "state is required", field: "state" });
   // }
+  // if (!req.body.stateId) {
+  //   return res
+  //     .status(400)
+  //     .send({ error: "stateId is required", field: "stateId" });
+  // }
+
+  // if (!req.body.cityId) {
+  //   return res
+  //     .status(400)
+  //     .send({ error: "cityId is required", field: "cityId" });
+  // }
 
   let {
     firstName,
@@ -600,8 +615,8 @@ router.put("/addaddress", async function (req, res) {
     apartment,
     nearbyLandmark,
     pincode,
-    city,
-    state,
+    cityId,
+    stateId,
     addressType,
     completedProfile,
     formStep,
@@ -614,8 +629,8 @@ router.put("/addaddress", async function (req, res) {
     apartment,
     nearbyLandmark,
     pincode,
-    city,
-    state,
+    cityId,
+    stateId,
     addressType,
   };
 

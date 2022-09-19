@@ -3,7 +3,6 @@ const router = express.Router();
 const Review = require("../../../../models/review");
 const Job = require("../../../../models/job");
 const Customer = require("../../../../models/user_management/customer");
-const Vendor = require("../../../../models/user_management/vendor");
 const mongoose = require("mongoose");
 
 router.get("/", async function (req, res) {
