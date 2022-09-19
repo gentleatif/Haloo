@@ -70,7 +70,8 @@ router.get("/", async function (req, res) {
       user: req.customer._id,
       couponId,
     };
-    return res.send({ subCategoryPrice });
+    // return res.status(200).send({ subCategoryPrice });
+    return res.status(200).json({ data: subCategoryPrice });
   } catch (error) {
     console.log(error);
     return res.status(400).send({ error: error });
@@ -101,7 +102,8 @@ router.get("/", async function (req, res) {
       message: "you don't have this order",
     });
   }
-  return res.send({ order });
+  // return res.send({ order });
+  return res.status(200).json({ data: order });
 });
 
 router.put("/", async function (req, res) {
@@ -206,7 +208,8 @@ router.put("/", async function (req, res) {
       );
 
       let updatedOrder = await Order.findOne({ _id: orderId });
-      return res.send({ order: updatedOrder });
+      // return res.send({ order: updatedOrder });
+      return res.status(200).json({ data: updatedOrder });
     } catch (error) {
       console.log(error);
       return res.status(400).send({ error: error });
@@ -239,7 +242,8 @@ router.delete("/", async function (req, res) {
   if (order.status === "pending" || order.status === "live") {
     try {
       let order = await Order.findByIdAndDelete(id);
-      return res.send({ order });
+      // return res.send({ order });
+      return res.status(200).json({ data: order });
     } catch (error) {
       console.log(error);
       return res.status(400).send({ error: error });

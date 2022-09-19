@@ -135,7 +135,7 @@ router.get("/", async (req, res) => {
     if (data.length) {
       return res.status(200).send({ data: data[0] });
     }
-    res.send({ data: data });
+    res.status.apply(200).send({ data: data });
   } catch (error) {
     console.log(error);
     res.status(400).send({ error: error });
@@ -422,9 +422,13 @@ router.put("/", async function (req, res) {
       update_query.completedProfile = req.body.completedProfile;
     }
     //  update element in mongodb put
-    Customer.updateOne({ _id: _id }, { $set: update_query })
+    Customer.findOneAndUpdate(
+      { _id: _id },
+      { $set: update_query },
+      { new: true }
+    )
       .then((item) => {
-        return res.sendStatus(200);
+        return res.status(200).send({ data: item });
       })
       .catch((error) => {
         //error handle
@@ -515,9 +519,13 @@ router.put("/upload-image", (req, res) => {
     }
 
     //    save to mongodb
-    Customer.updateOne({ _id: _id }, { $set: update_query })
+    Customer.findOneAndUpdate(
+      { _id: _id },
+      { $set: update_query },
+      { new: true }
+    )
       .then((item) => {
-        return res.sendStatus(200);
+        return res.status(200).send({ data: item });
       })
       .catch((error) => {
         //error handle
@@ -612,12 +620,13 @@ router.put("/addaddress", async function (req, res) {
   };
 
   // update formStep completedProfile in mongodb
-  Customer.updateOne(
+  Customer.findOneAndUpdate(
     { _id: _id },
-    { $push: { address: newObject }, $set: { formStep, completedProfile } }
+    { $push: { address: newObject }, $set: { formStep, completedProfile } },
+    { new: true }
   )
     .then((item) => {
-      return res.sendStatus(200);
+      return res.status(200).send({ data: item });
     })
     .catch((error) => {
       //error handle
@@ -630,7 +639,6 @@ router.put("/addaddress", async function (req, res) {
 router.put("/updateaddress", async function (req, res) {
   console.log("user details", req.customer);
   let _id = req.customer._id;
-
   console.log("Got query:", req.query);
   console.log("Got body:", req.body);
 
@@ -666,15 +674,17 @@ router.put("/updateaddress", async function (req, res) {
   let { completedProfile, formStep } = req.body;
 
   // update array element
-  Customer.updateOne(
+  Customer.findOneAndUpdate(
     { _id: _id, "address._id": req.query.addressId },
     {
       ...updateObj,
       $set: { formStep, completedProfile },
-    }
+    },
+    { returnOriginal: false }
   )
     .then((item) => {
-      return res.sendStatus(200);
+      console.log("update address===>", item);
+      return res.status(200).send({ data: item });
     })
     .catch((error) => {
       //error handle
@@ -695,12 +705,13 @@ router.delete("/deleteaddress", async function (req, res) {
   }
 
   //    delete address
-  Customer.updateOne(
+  Customer.findOneAndUpdate(
     { _id: _id },
-    { $pull: { address: { _id: req.body.addressId } } }
+    { $pull: { address: { _id: req.body.addressId } } },
+    { new: true }
   )
     .then((item) => {
-      return res.sendStatus(200);
+      return res.status(200).send({ data: item });
     })
     .catch((error) => {
       //error handle

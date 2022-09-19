@@ -248,7 +248,7 @@ router.get("/", async (req, res) => {
       }
     }
 
-    res.send({ data: data });
+    res.status(200).send({ data: data });
   } catch (error) {
     console.log(error);
     res.status(400).send({ error: error });

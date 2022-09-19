@@ -16,6 +16,7 @@ const codRequestSchema = new mongoose.Schema({
   },
     {
       timestamps: true
+      .
     });
   
   const CodRequest = mongoose.model('codRequest', codRequestSchema)

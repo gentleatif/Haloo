@@ -29,8 +29,11 @@ router.post(
   async (req, res) => {
     console.log("Got query:", req.query);
     console.log("Got body:", req.body);
+    console.log("Got files:", req.files);
 
     var categoryName = req.body.categoryName;
+    console.log("category body===>", req.body);
+
     // var sequenceNumber = req.body.sequenceNumber;
 
     var status = req.body.status;
@@ -54,7 +57,7 @@ router.post(
     if (req.files && req.files.categoryImage) {
       console.log("Got image:", req.files.categoryImage);
       image =
-        "uploads/images/categoryImage/" + req.files.categoryImage[0].filename;
+        "uploads/images./categoryImage/" + req.files.categoryImage[0].filename;
 
       console.log("img===>", req.files.categoryImage[0].filename);
     }

@@ -175,9 +175,9 @@ module.exports = function (getIOInstance) {
     let subCategory = await SubCategory.findOne({
       _id: subCategoryId,
     });
-    let subCategoryImg = subCategory.subCategoryImage;
-    let subCategoryName = subCategory.name;
-    // let totalAmount = subCategory.price;
+    let subCategoryImg = "subCategory.subCategoryImage";
+    let subCategoryName = "subCategory.name";
+    // let toltalAmount = subCategory.price;
     // temporary hardcoded
     let totalAmount = "83";
     let finalAmount = "83";
@@ -268,7 +268,7 @@ module.exports = function (getIOInstance) {
         $or: [{ customerId: req.customer._id }, { vendorId: req.customer._id }],
       })
         .then(function (item) {
-          res.sendStatus(200);
+          return res.status(200).json({ data: item });
         })
         .catch((error) => {
           //error handle
@@ -292,7 +292,7 @@ module.exports = function (getIOInstance) {
       let { subCategoryId, vendorId, ScheduleTime, address, discount } =
         req.body;
 
-      Job.updateOne(
+      Job.findOneAndUpdate(
         {
           _id: _id,
           $or: [
@@ -300,10 +300,12 @@ module.exports = function (getIOInstance) {
             { vendorId: req.customer._id },
           ],
         },
-        { $set: { subCategoryId, vendorId, ScheduleTime, address, discount } }
+        { $set: { subCategoryId, vendorId, ScheduleTime, address, discount } },
+        { new: true }
       )
         .then(function (item) {
-          res.sendStatus(200);
+          // res.sendStatus(200);
+          return res.status(200).json({ data: item });
         })
         .catch((error) => {
           //error handle
@@ -409,12 +411,14 @@ module.exports = function (getIOInstance) {
       // socket.broadcast.to(socketid).emit("message", "for your eyes only");
     });
 
-    Job.updateOne(
+    Job.findOneAndUpdate(
       { _id: _id, vendorId: req.customer._id },
-      { $set: { status: "upcoming" } }
+      { $set: { status: "upcoming" } },
+      { new: true }
     )
       .then(function (item) {
-        res.sendStatus(200);
+        // res.sendStatus(200);
+        return res.status(200).json({ data: item });
       })
       .catch((error) => {
         //error handle
@@ -489,15 +493,17 @@ module.exports = function (getIOInstance) {
       // socket end
     }
 
-    Job.updateOne(
+    Job.findByIdAndUpdate(
       {
         _id: _id,
         $or: [{ customerId: req.customer._id }, { vendorId: req.customer._id }],
       },
-      { $set: { status: "cancelled", rejectType, rejectReason } }
+      { $set: { status: "cancelled", rejectType, rejectReason } },
+      { new: true }
     )
       .then(function (item) {
-        res.sendStatus(200);
+        // res.sendStatus(200);
+        return res.status(200).json({ data: item });
       })
       .catch((error) => {
         //error handle
@@ -556,15 +562,17 @@ module.exports = function (getIOInstance) {
           }
           // socket end
 
-          Job.updateOne(
+          Job.findOneAndUpdate(
             {
               _id: _id,
               $or: [{ customerId: req.user._id }, { vendorId: req.user._id }],
             },
-            { $set: { status: "complete" } }
+            { $set: { status: "complete" } },
+            { new: true }
           )
             .then(function (item) {
-              res.sendStatus(200);
+              // res.sendStatus(200);
+              return res.status(200).json({ data: item });
             })
             .catch((error) => {
               //error handle

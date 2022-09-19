@@ -34,7 +34,7 @@ router.get("/", async (req, res) => {
     let categoryData = await Category.find(query2);
     // send both category data in response as well as sub category data
     const data = { subCategory: subCategoryData, category: categoryData };
-    res.send({ data: data });
+    res.status(200).send({ data: data });
   } catch (error) {
     console.log(error);
     res.sendStatus(400);
@@ -102,7 +102,8 @@ router.post("/", async (req, res) => {
         .save(item)
         .then(function (item) {
           console.log(item);
-          res.sendStatus(200);
+          // res.sendStatus(200);
+          return res.status(200).json({ data: item });
         })
         .catch((error) => {
           //error handle

@@ -35,7 +35,7 @@ router.get("/", async (req, res) => {
       //     },
       // },
     ]);
-    res.send({ data: data });
+    res.status(200).send({ data: data });
   } catch (error) {
     console.log(error);
     res.sendStatus(400);
@@ -105,7 +105,8 @@ router.post("/", async (req, res) => {
       });
 
       await support.save();
-      return res.status(200).send("ok");
+      // return res.status(200).send("ok");
+      return res.status(200).json({ data: support });
     } catch (error) {
       console.log(error);
       return res.status(400).send(error);
@@ -118,12 +119,13 @@ router.delete("/", async function (req, res) {
   // console.log('Got body:', req.body);
   let _id = req.query.id;
   if (!_id) {
-    res.send({ error: "Please provide an id" });
+    res.send({ error: "Please provide an id", field: "id" });
   } else {
     //  remove element by id
     Support.remove({ _id })
       .then((item) => {
-        res.sendStatus(200);
+        // res.sendStatus(200);
+        return res.status(200).json({ data: item });
       })
       .catch((error) => {
         //error handle
@@ -196,12 +198,14 @@ router.put("/", async function (req, res) {
         }
       }
 
-      Support.updateOne(
+      Support.findOneAndUpdate(
         { _id: req.query.id },
-        { $set: { query, supportImage, type } }
+        { $set: { query, supportImage, type } },
+        { new: true }
       )
         .then((item) => {
-          return res.sendStatus(200);
+          // return res.sendStatus(200);
+          return res.status(200).json({ data: item });
         })
         .catch((error) => {
           //error handle

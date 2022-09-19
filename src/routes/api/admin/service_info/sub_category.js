@@ -69,9 +69,9 @@ router.post(
     var parentCategoryId = req.body.parentCategoryId;
     // var sequenceNumber = req.body.sequenceNumber;
     var status = req.body.status;
-    var name = req.body.subCategoryName;
+    var subCategoryName = req.body.subCategoryName;
     var price = req.body.price;
-    if (!name) {
+    if (!subCategoryName) {
       return res.status(400).send({ error: "name is required", field: "name" });
     }
     if (!price) {
@@ -92,7 +92,7 @@ router.post(
     }
 
     let checkCategory = await SubCategory.findOne({
-      subCategoryName: name,
+      subCategoryName: subCategoryName,
     });
     if (checkCategory) {
       return res
@@ -100,8 +100,6 @@ router.post(
         .send({ error: "subCategory already exist", field: "subCategoryName" });
     }
 
-    // var seq = await getNextSequence("subCategory");
-    // console.log("seq:", seq);
     var image;
     console.log("req.files ===>", req.files);
     if (req.files && req.files.subCategoryImage) {
@@ -120,7 +118,7 @@ router.post(
       res.send({ error: "Parent category does not exist" });
     } else {
       var item = new SubCategory({
-        subCategoryName: name,
+        subCategoryName: subCategoryName,
         category,
         parentCategoryId,
         subCategoryImage: image,

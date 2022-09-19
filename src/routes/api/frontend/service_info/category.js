@@ -19,7 +19,7 @@ router.get("/", async (req, res) => {
     } else {
       categories = await Category.find({});
     }
-    res.send({ data: categories });
+    res.status(200).send({ data: categories });
   } catch (error) {
     console.log(error);
     res.status(400).send({ error: "server error occur" });
@@ -86,7 +86,8 @@ router.post("/", async (req, res) => {
       .save(item)
       .then(function (item) {
         // console.log(item);
-        res.sendStatus(200);
+        // res.sendStatus(200);
+        return res.status(200).json({ data: item });
       })
       .catch((error) => {
         //error handle
