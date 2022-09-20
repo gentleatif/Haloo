@@ -14,15 +14,14 @@ var multer = require("multer");
 const useragent = require("express-useragent");
 
 //creating express intances
-var app = express();
+const app = express();
+app.use(cors());
 
 app.use(
   bodyParser.urlencoded({
     extended: true,
   })
 );
-// allow * origin
-app.use(cors());
 app.use(bodyParser.json());
 
 app.use(useragent.express());
@@ -51,8 +50,7 @@ const server = app.listen(port, () => {
 // run socket io
 const io = require("socket.io")(server, {
   cors: {
-    origin: "http://localhost:3000",
-    // allow all methods
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
   },
 });
