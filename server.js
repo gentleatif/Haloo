@@ -12,9 +12,18 @@ const Job = require("./src/models/job");
 const Customer = require("./src/models/user_management/customer");
 var multer = require("multer");
 const useragent = require("express-useragent");
+const cloudinary = require("cloudinary");
 
 //creating express intances
 const app = express();
+// cloudinary
+cloudinary.config({
+  cloud_name: "dvpcv7poi",
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true,
+});
+
 app.use(cors());
 
 app.use(
@@ -38,7 +47,6 @@ db.on("error", console.error.bind(console, "Connection error"));
 db.once("open", function () {
   console.log("Connection succeeded.");
 });
-
 const router = require("./src/routes")();
 app.use(router);
 

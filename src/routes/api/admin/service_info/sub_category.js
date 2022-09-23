@@ -7,6 +7,7 @@ const upload = require("../../../../middleware/multer");
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 const getNextSequence = require("../../../../utils/counter");
+const cloudinary = require("cloudinary").v2;
 
 router.get("/", async (req, res) => {
   // write a function to add two number
@@ -108,8 +109,9 @@ router.post(
         req.files.subCategoryImage[0].filename;
       console.log("img===>", req.files.subCategoryImage[0].filename);
     }
-
-    console.log("uploaded img===>", image);
+    const result = await cloudinary.uploader.upload(
+      req.files.subCategoryImage[0].path
+    );
 
     const categoryExists = await Category.exists({ _id: parentCategoryId });
     console.log(categoryExists);
@@ -120,7 +122,7 @@ router.post(
         subCategoryName: subCategoryName,
         category,
         parentCategoryId,
-        subCategoryImage: image,
+        subCategoryImage: result.secure_url,
         status,
         price,
       });
@@ -185,17 +187,24 @@ router.put(
     } else if (!_id) {
       res.send({ error: "No collection with this id" });
     } else {
+      let result;
       if (req.files && req.files.subCategoryImage) {
-        req.body.subCategoryImage =
-          "uploads/images/subCategoryImage/" +
-          req.files.subCategoryImage[0].filename;
-        if (data.subCategoryImage) {
-          fs.unlink(data.subCategoryImage, (err) => {
-            if (err) throw err;
-            console.log("successfully deleted image");
-          });
-        }
+        // req.body.subCategoryImage =
+        //   "uploads/images/subCategoryImage/" +
+        //   req.files.subCategoryImage[0].filename;
+        // if (data.subCategoryImage) {
+        //   fs.unlink(data.subCategoryImage, (err) => {
+        //     if (err) throw err;
+        //     console.log("successfully deleted image");
+        //   });
+        // }
+        result = await cloudinary.uploader.upload(
+          req.files.subCategoryImage[0].path
+        );
+        req.body.subCategoryImage = result.secure_url;
       }
+      // update image with cloudinary
+      // req.body.subCategoryImage = result.secure_url;
 
       console.log("req.body===>", req.body);
       //  update element in mongodb put

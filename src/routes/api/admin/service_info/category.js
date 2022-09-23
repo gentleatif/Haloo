@@ -6,6 +6,7 @@ const Counter = require("../../../../models/utils/counter");
 
 const upload = require("../../../../middleware/multer");
 const getNextSequence = require("../../../../utils/counter");
+const cloudinary = require("cloudinary").v2;
 
 router.get("/", async (req, res) => {
   console.log("Got query:", req.query);
@@ -31,6 +32,7 @@ router.post(
     console.log("Got body:", req.body);
     console.log("Got files:", req.files);
 
+    console.log("add to cart route hit successfully");
     var categoryName = req.body.categoryName;
     console.log("category body===>", req.body);
 
@@ -61,12 +63,22 @@ router.post(
 
       console.log("img===>", req.files.categoryImage[0].filename);
     }
+    console.log("addCart route hit");
+
+    console.log("image details===>", image);
+    console.log("cloudinary dtls===> ", cloudinary);
+    // upload image on cloudinary and get url
+    const result = await cloudinary.uploader.upload(
+      req.files.categoryImage[0].path
+    );
+
+    console.log("result==================>", result);
 
     var item = new Category({
       categoryName,
       sequenceNumber: seq,
       status,
-      categoryImage: image,
+      categoryImage: result.secure_url,
     });
 
     item
