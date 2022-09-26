@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const upload = require("../../../../middleware/multer");
+const Cloudinary = require("../../../../utils/upload");
 
 router.get("/", async (req, res) => {
   console.log("Got query admin route hit :");
@@ -44,6 +45,7 @@ router.post(
     var profileImage;
     if (req.files && req.files.profileImage) {
       profileImage = "uploads/images/" + req.files.profileImage[0].filename;
+      profileImage = await Cloudinary(req.files.profileImage[0].path);
     }
 
     encryptedPassword = await bcrypt.hash(password, 10);
@@ -124,6 +126,9 @@ router.put(
       if (req.files && req.files.profileImage) {
         req.body.profileImage =
           "uploads/images/" + req.files.profileImage[0].filename;
+        req.body.profileImage = await Cloudinary(
+          req.files.profileImage[0].path
+        );
         if (data.profileImage) {
           fs.unlink(data.profileImage, (err) => {
             if (err) console.log(err);

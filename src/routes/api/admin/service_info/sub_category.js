@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 const getNextSequence = require("../../../../utils/counter");
 const cloudinary = require("cloudinary").v2;
+const Cloudinary = require("../../../../utils/upload");
 
 router.get("/", async (req, res) => {
   // write a function to add two number

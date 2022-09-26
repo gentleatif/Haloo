@@ -162,7 +162,8 @@ router.post("/", async (req, res) => {
       }
       console.log(req.file);
       if (req.file) {
-        req.body.profileImage = "uploads/images/" + req.file.filename;
+        // req.body.profileImage = "uploads/images/" + req.file.filename;
+        req.body.profileImage = await Cloudinary(req.file.path);
       }
 
       // check type
@@ -403,6 +404,8 @@ router.put("/", async function (req, res) {
     console.log(req.file);
     if (req.file) {
       req.body.profileImage = "uploads/images/" + req.file.filename;
+      req.body.profileImage = await Cloudinary(req.file.path);
+
       if (data.profileImage) {
         fs.unlink(data.profileImage, (err) => {
           if (err) {

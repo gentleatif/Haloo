@@ -6,6 +6,7 @@ const upload = require("../../../../middleware/multer").single("profileImage");
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 const multer = require("multer");
+const Cloudinary = require("../../../../utils/upload");
 
 router.get("/", async (req, res) => {
   console.log("user details", req.user);
@@ -350,7 +351,9 @@ router.put("/", async function (req, res) {
     var profileImages;
     console.log(req.file);
     if (req.file) {
-      req.body.profileImage = "uploads/images/" + req.file.filename;
+      // req.body.profileImage = "uploads/images/" + req.file.filename;
+      req.body.profileImage = await Cloudinary(req.files.categoryImage[0].path);
+
       if (data.profileImage) {
         fs.unlink(data.profileImage, (err) => {
           if (err) {

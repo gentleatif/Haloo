@@ -175,8 +175,8 @@ module.exports = function (getIOInstance) {
     let subCategory = await SubCategory.findOne({
       _id: subCategoryId,
     });
-    let subCategoryImg = "subCategory.subCategoryImage";
-    let subCategoryName = "subCategory.name";
+    let subCategoryImg = subCategory.subCategoryImage;
+    let subCategoryName = subCategory.subCategoryName;
     // let toltalAmount = subCategory.price;
     // temporary hardcoded
     let totalAmount = "83";

@@ -6,6 +6,8 @@ const Category = require("../../../../models/service_info/category");
 const upload = require("../../../../middleware/multer").single(
   "subCategoryImage"
 );
+const Cloudinary = require("../../../../utils/upload");
+
 const mongoose = require("mongoose");
 const multer = require("multer");
 const ObjectId = mongoose.Types.ObjectId;
@@ -72,6 +74,7 @@ router.post("/", async (req, res) => {
     let subCategoryImage;
     if (req.file) {
       subCategoryImage = "uploads/images/subCategoryImage/" + req.file.filename;
+      subCategoryImage = await Cloudinary(req.file.path);
     }
 
     //validate price number

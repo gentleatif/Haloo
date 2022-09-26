@@ -8,6 +8,8 @@ const getNextSequence = require("../../../../utils/counter");
 const upload = require("../../../../middleware/multer").single("categoryImage");
 const multer = require("multer");
 
+const Cloudinary = require("../../../../utils/upload");
+
 router.get("/", async (req, res) => {
   console.log("Got query: =================>", req.query);
   try {
@@ -57,6 +59,7 @@ router.post("/", async (req, res) => {
     console.log("Got file:", req.file);
     if (req.file) {
       categoryImage = "uploads/images/categoryImage/" + req.file.filename;
+      categoryImage = Cloudinary(req.file.path);
     }
 
     if (!categoryName) {

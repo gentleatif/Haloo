@@ -7,6 +7,7 @@ const ObjectId = mongoose.Types.ObjectId;
 const Customer = require("../../../../models/user_management/customer");
 const upload = require("../../../../middleware/multer").single("supportImage");
 const multer = require("multer");
+const Cloudinary = require("../../../../utils/upload");
 
 router.get("/", async (req, res) => {
   console.log("Got query:", req.query);
@@ -94,6 +95,7 @@ router.post("/", async (req, res) => {
       console.log("Got file:", req.file);
       if (req.file) {
         supportImage = "uploads/images/supportImage/" + req.file.filename;
+        supportImage = await Cloudinary(req.file.path);
       }
 
       let support = new Support({
@@ -188,6 +190,7 @@ router.put("/", async function (req, res) {
       console.log(req.file);
       if (req.file) {
         supportImage = "uploads/images/supportImage/" + req.file.filename;
+        supportImage = await Category(req.file.path);
         if (support.supportImage) {
           fs.unlink(support.supportImage, (err) => {
             if (err) {

@@ -5,8 +5,8 @@ const fs = require("fs");
 const Counter = require("../../../../models/utils/counter");
 
 const upload = require("../../../../middleware/multer");
+const Cloudinary = require("../../../../utils/upload");
 const getNextSequence = require("../../../../utils/counter");
-const cloudinary = require("cloudinary").v2;
 
 router.get("/", async (req, res) => {
   console.log("Got query:", req.query);
@@ -61,24 +61,14 @@ router.post(
       image =
         "uploads/images./categoryImage/" + req.files.categoryImage[0].filename;
 
-      console.log("img===>", req.files.categoryImage[0].filename);
+      image = await Cloudinary(req.files.categoryImage[0].path);
     }
-    console.log("addCart route hit");
-
-    console.log("image details===>", image);
-    console.log("cloudinary dtls===> ", cloudinary);
-    // upload image on cloudinary and get url
-    const result = await cloudinary.uploader.upload(
-      req.files.categoryImage[0].path
-    );
-
-    console.log("result==================>", result);
 
     var item = new Category({
       categoryName,
       sequenceNumber: seq,
       status,
-      categoryImage: result.secure_url,
+      categoryImage: image,
     });
 
     item
@@ -136,6 +126,10 @@ router.put(
       if (req.files && req.files.categoryImage) {
         req.body.categoryImage =
           "uploads/images/categoryImage/" + req.files.categoryImage[0].filename;
+        req.body.categoryImage = await Cloudinary(
+          req.files.categoryImage[0].path
+        );
+
         if (data.categoryImage) {
           fs.unlink(data.categoryImage, (err) => {
             if (err) throw err;

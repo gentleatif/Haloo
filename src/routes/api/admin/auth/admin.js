@@ -9,6 +9,7 @@ const generate_otp = require("../../../../utils/generate_otp");
 const nodemailer = require("nodemailer");
 const auth = require("../../../../middleware/auth");
 const config = process.env;
+const Cloudinary = require("../../../../utils/upload");
 
 router.post(
   "/register",
@@ -22,6 +23,7 @@ router.post(
     var profileImage;
     if (req.files && req.files.profileImage) {
       profileImage = "uploads/images/" + req.files.profileImage[0].filename;
+      image = await Cloudinary(req.files.categoryImage[0].path);
     }
 
     encryptedPassword = await bcrypt.hash(password, 10);
