@@ -73,14 +73,16 @@ const customerSchema = new mongoose.Schema(
         apartment: String,
         nearbyLandmark: String,
         pincode: Number,
-        cityId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "cities",
-        },
-        stateId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "states",
-        },
+        // cityId: {
+        //   type: mongoose.Schema.Types.ObjectId,
+        //   ref: "cities",
+        // },
+        // stateId: {
+        //   type: mongoose.Schema.Types.ObjectId,
+        //   ref: "states",
+        // },
+        stateId: String,
+        cityId: String,
 
         addressType: String,
         lat: {
