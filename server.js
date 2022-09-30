@@ -26,6 +26,12 @@ cloudinary.config({
 
 app.use(cors());
 
+// log all requests to the console
+app.use(function (req, res, next) {
+  console.log(req.method, req.url);
+  next();
+});
+
 app.use(
   bodyParser.urlencoded({
     extended: true,
