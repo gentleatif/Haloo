@@ -10,6 +10,7 @@ const uploadMultiple = require("../../../../middleware/multer").fields([
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 const multer = require("multer");
+const Cloudinary = require("../../../../utils/upload");
 
 router.get("/", async (req, res) => {
   // console.log(...req.query);
@@ -325,6 +326,7 @@ router.put("/", async function (req, res) {
     if (req.file) {
       req.body.profileImage =
         "uploads/images/profileImage/" + req.file.filename;
+
       if (req.customer.profileImage) {
         fs.unlink(req.customer.profileImage, (err) => {
           if (err) {
@@ -333,6 +335,7 @@ router.put("/", async function (req, res) {
           console.log({ data: "successfully deleted profileImage" });
         });
       }
+      profileImages = await Cloudinary(req.file.path);
     }
 
     //validate emailAddress
@@ -378,6 +381,7 @@ router.put("/", async function (req, res) {
     if (req.body.profileImage) {
       update_query.profileImage = req.body.profileImage;
       console.log("profileImage", update_query.profileImage);
+      // profileImages = await Cloudinary(req.file.path);
     }
 
     // if(req.body.address && req.body.address != data.address){
@@ -492,6 +496,7 @@ router.put("/upload-image", (req, res) => {
       update_query.addressProofImage =
         "uploads/images/addressProofImage/" +
         req.files.addressProofImage[0].filename;
+
       //    delete old file
       if (req.customer.addressProofImage) {
         fs.unlink(req.customer.addressProofImage, (err) => {
@@ -501,21 +506,29 @@ router.put("/upload-image", (req, res) => {
           console.log({ data: "successfully deleted addressProofImage" });
         });
       }
+      update_query.addressProofImage = await Cloudinary(
+        req.files.addressProofImage[0].path
+      );
     }
 
-    if (req.files && req.files.certificateProofImage) {
-      update_query.certificateProofImage =
-        "uploads/images/certificateProofImage/" +
-        req.files.certificateProofImage[0].filename;
+    if (req.files && req.files.certificateImage) {
+      console.log("certificateImage", req.files.certificateImage);
+      // update_query.certificateImage =
+      //   "uploads/images/certificateProofImage/" +
+      //   req.files.certificateImage[0].filename;
+
       //    delete old file
-      if (req.customer.certificateProofImage) {
-        fs.unlink(req.customer.certificateProofImage, (err) => {
-          if (err) {
-            console.log(err);
-          }
-          console.log({ data: "successfully deleted certificateProofImage" });
-        });
-      }
+      // if (req.customer.certificateProofImage) {
+      //   fs.unlink(req.customer.certificateProofImage, (err) => {
+      //     if (err) {
+      //       console.log(err);
+      //     }
+      //     console.log({ data: "successfully deleted certificateProofImage" });
+      //   });
+      // }
+      update_query.certificateImage = await Cloudinary(
+        req.files.certificateImage[0].path
+      );
     }
 
     //    save to mongodb
