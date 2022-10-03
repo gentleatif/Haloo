@@ -29,10 +29,17 @@ const customerSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "cities",
     },
+    stateId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "states",
+    },
     phone: {
       type: String,
       unique: true,
       trim: true,
+    },
+    pincode: {
+      type: String,
     },
 
     completedProfile: {

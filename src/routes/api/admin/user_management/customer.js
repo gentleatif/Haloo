@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Customer = require("../../../../models/user_management/customer");
 const fs = require("fs");
-const upload = require("../../../../middleware/multer").single("profileImage");
+const upload = require("../../../../middleware/multer");
 const multer = require("multer");
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
@@ -92,33 +92,35 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
-  console.log("Got query customer create route hit:", req.query);
-  console.log("Got body:", req.body);
-
-  try {
-    upload(req, res, async function (err) {
-      if (err instanceof multer.MulterError) {
-        // A Multer error occurred when uploading.
-        console.log("A Multer error occurred when uploading.");
-        console.log(err);
-        return res
-          .status(400)
-          .send({ error: err.message, field: "profileImage" });
-        //   return res.status(400).send({error: 'Only .png, .jpg and .jpeg format allowed with maxsize 1Mb!', field: 'profileImage'});
-      } else if (err) {
-        // An unknown error occurred when uploading.
-        console.log("A Multer error occurred when uploading.");
-        console.log(err);
-        return res
-          .status(400)
-          .send({ error: err.message, field: "profileImage" });
-        //   return res.status(400).send({error: 'Only .png, .jpg and .jpeg format allowed with maxsize 1Mb!', field: 'profileImage' });
+router.post(
+  "/",
+  upload.fields([{ name: "profileImage", maxCount: 1 }]),
+  async (req, res) => {
+    var {
+      companyName,
+      firstName: firstName,
+      lastName: lastName,
+      pincode: pincode,
+      type,
+      phone,
+      address,
+      lastAccessOn,
+      codStatus,
+      status,
+      online,
+      jobSkills,
+      cityId,
+      stateId,
+      profileImage,
+    } = req.body;
+    try {
+      console.log("body===>", req.body);
+      if (req.files && req.files.profileImage) {
+        console.log("Got image:", req.files.profileImage);
+        req.body.profileImage = await Cloudinary(
+          req.files.profileImage[0].path
+        );
       }
-
-      console.log(req.file);
-      console.log("Got query:", req.query);
-      console.log("Got body:", req.body);
 
       // phone must be unique and require
       if (!req.body.phone) {
@@ -161,11 +163,6 @@ router.post("/", async (req, res) => {
             .send({ error: "Invalid phone", field: "phone" });
         }
       }
-      console.log(req.file);
-      if (req.file) {
-        // req.body.profileImage = "uploads/images/" + req.file.filename;
-        req.body.profileImage = await Cloudinary(req.file.path);
-      }
 
       // check type
       if (req.body.type) {
@@ -197,52 +194,15 @@ router.post("/", async (req, res) => {
         }
       }
 
-      var {
-        companyName,
-        customerName,
-        type,
-        phone,
-        address,
-        // city,
-        // state,
-        pincode,
-        lastAccessOn,
-        codStatus,
-        status,
-        online,
-        jobSkills,
-        cityId,
-        stateId,
-        profileImage,
-      } = req.body;
-      console.log("body===>", req.body);
-
-      var newCustomer = new Customer({
-        companyName,
-        customerName,
-        type,
-        phone,
-        address,
-        cityId,
-        stateId,
-        pincode,
-        lastAccessOn,
-        codStatus,
-        status,
-        profileImage,
-        jobSkills,
-        online,
-      });
-
-      await newCustomer.save();
-
-      return res.status(200).send("ok");
-    });
-  } catch (error) {
-    console.log(error);
-    return res.sendStatus(400);
+      var item = new Customer(req.body);
+      await item.save();
+      res.send(item);
+    } catch (error) {
+      console.log(error);
+      return res.sendStatus(400);
+    }
   }
-});
+);
 
 router.delete("/", async function (req, res) {
   // console.log('Got query:', req.query);
