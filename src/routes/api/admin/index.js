@@ -26,7 +26,6 @@ module.exports = function (razorpayInstance, getIOInstance) {
   MainRouter.use("/review", auth, require("./review.js"));
   MainRouter.use("/job", auth, require("./job.js"));
   MainRouter.use("/serviceinfo", auth, require("./service_info"));
-  MainRouter.use("/", auth, require("./user_management"));
   MainRouter.use("/setting", auth, require("./setting"));
   MainRouter.use("/support", auth, require("./support"));
   MainRouter.use("/staticfile", auth, require("./static_file"));
@@ -36,6 +35,8 @@ module.exports = function (razorpayInstance, getIOInstance) {
   MainRouter.use("/report", auth, require("./report"));
   MainRouter.use("/", auth, require("./order")(razorpayInstance));
   MainRouter.use("/offer", auth, require("./offer"));
+  MainRouter.use("/", auth, require("./user_management"));
+
   MainRouter.get("/", (req, res) => {
     console.log("req.user", req.user);
     res.send("Hello World!");

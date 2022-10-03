@@ -197,19 +197,6 @@ router.post("/", async (req, res) => {
         }
       }
 
-      // stateId validate
-      // && !ObjectId.isValid(req.body.stateId)
-      // if (req.body.stateId) {
-      //   return res.status(400).send({ error: "Invalid stateId" });
-      // }
-      // && !ObjectId.isValid(req.body.cityId)
-      // cityId validatejobSkills
-      // if (req.body.cityId) {
-      //   return res.status(400).send({ error: "Invalid cityId" });
-      // }
-
-      // var update_query = { };
-
       var {
         companyName,
         customerName,
