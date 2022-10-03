@@ -228,6 +228,7 @@ router.post("/", async (req, res) => {
         stateId,
         profileImage,
       } = req.body;
+      console.log("body===>", req.body);
 
       var newCustomer = new Customer({
         companyName,
