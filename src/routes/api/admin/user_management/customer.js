@@ -6,6 +6,7 @@ const upload = require("../../../../middleware/multer").single("profileImage");
 const multer = require("multer");
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
+const Cloudinary = require("../../../../utils/upload");
 
 router.get("/", async (req, res) => {
   console.log("Got query:", req.query);
@@ -198,14 +199,14 @@ router.post("/", async (req, res) => {
 
       // stateId validate
       // && !ObjectId.isValid(req.body.stateId)
-      if (req.body.stateId) {
-        return res.status(400).send({ error: "Invalid stateId" });
-      }
+      // if (req.body.stateId) {
+      //   return res.status(400).send({ error: "Invalid stateId" });
+      // }
       // && !ObjectId.isValid(req.body.cityId)
       // cityId validatejobSkills
-      if (req.body.cityId) {
-        return res.status(400).send({ error: "Invalid cityId" });
-      }
+      // if (req.body.cityId) {
+      //   return res.status(400).send({ error: "Invalid cityId" });
+      // }
 
       // var update_query = { };
 
@@ -378,16 +379,16 @@ router.put("/", async function (req, res) {
           .send({ error: "Invalid jobSkills (array)", field: "jobSkills" });
       }
     }
-    if (req.body.stateId && !ObjectId.isValid(req.body.stateId)) {
-      return res
-        .status(400)
-        .send({ error: "Invalid stateId", field: "stateId" });
-    }
+    // if (req.body.stateId && !ObjectId.isValid(req.body.stateId)) {
+    //   return res
+    //     .status(400)
+    //     .send({ error: "Invalid stateId", field: "stateId" });
+    // }
 
     // cityId validate
-    if (req.body.cityId && !ObjectId.isValid(req.body.cityId)) {
-      return res.status(400).send({ error: "Invalid cityId", field: "cityId" });
-    }
+    // if (req.body.cityId && !ObjectId.isValid(req.body.cityId)) {
+    //   return res.status(400).send({ error: "Invalid cityId", field: "cityId" });
+    // }
 
     if (req.body.phone) {
       let customer = await Customer.findOne({
