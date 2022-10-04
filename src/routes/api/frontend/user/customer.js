@@ -143,90 +143,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// router.post('/', upload.single('profileImage'), async (req,res) =>{
-//     console.log('Got query:', req.query);
-//     console.log('Got body:', req.body);
-
-//     try{
-//         var {
-//             companyName,
-//             customerName,
-//             emailAddress,
-//             firstName,
-//             lastName,
-//             type,
-//             phone,
-//             ageBracket,
-//             noOfJobs,
-//             address,
-//             city,
-//             state,
-//             pincode,
-//             averageRating,
-//             lastAccessOn,
-//             codStatus,
-//             status } = req.body;
-
-//         var profileImage;
-//         if (req.files.profileImage) {
-//             profileImage = 'uploads/images/' + req.files.profileImage[0].filename;
-//         }
-
-//         var newCustomer = new Customer({
-//             companyName,
-//             customerName,
-//             emailAddress,
-//             firstName,
-//             lastName,
-//             type,
-//             phone,
-//             ageBracket,
-//             noOfJobs,
-//             address,
-//             city,
-//             state,
-//             pincode,
-//             averageRating,
-//             lastAccessOn,
-//             codStatus,
-//             status });
-
-//         await newCustomer.save();
-
-//         return res.status(200).send('ok');
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(400).send(error);
-//     }
-// })
-
-// router.delete("/" ,async function(req,res){
-//     // console.log('Got query:', req.query);
-//     // console.log('Got body:', req.body);
-//     var _id = req.customer._id;
-//
-//     if(!_id){
-//         return res.status(400).send('Unable to get id from token please relogin');
-//
-//     }else{
-//         //  remove element by id
-//         Customer.findOneAndDelete({_id:_id})
-//             .then((item) => {
-//                 if (item.profileImage) {
-//                     fs.unlink(item.profileImage, (err) => {
-//                         if (err) console.log(err);;
-//                         console.log('successfully deleted profileImage');
-//                     });
-//                 }
-//                 res.sendStatus(200);
-//             }).catch((error) => {
-//             //error handle
-//             console.log(error);
-//             res.status(400).send({error: error});
-//         });
-//     }
-// });
-
 router.put("/", async function (req, res) {
   upload(req, res, async function (err) {
     if (err instanceof multer.MulterError) {
@@ -254,15 +170,6 @@ router.put("/", async function (req, res) {
     console.log(req.file);
     console.log("Got query:", req.query);
     console.log("Got body:", req.body);
-
-    // if(req.body.pincode){
-    //     let pincode = req.body.pincode;
-    //     console.log('pincode', pincode);
-    //     let pincodeRegex = /^\d{6}$/;
-    //     if(!pincodeRegex.test(pincode)){
-    //         return res.status(400).send({error:'Invalid pincode', field: 'pincode'});
-    //     }
-    // }
 
     // check type
     if (req.body.type) {

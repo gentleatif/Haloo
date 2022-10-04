@@ -74,22 +74,59 @@ router.get("/", async (req, res) => {
     ]);
 
     // forloop in customer check for profile image exist from path
-    for (let i = 0; i < data.length; i++) {
-      if (data[i].profileImage) {
-        // check if file exist
-        if (fs.existsSync(data[i].profileImage)) {
-          data[i].profileImage = data[i].profileImage;
-        } else {
-          data[i].profileImage = null;
-        }
-      }
-    }
+    // for (let i = 0; i < data.length; i++) {
+    //   if (data[i].profileImage) {
+    //     // check if file exist
+    //     if (fs.existsSync(data[i].profileImage)) {
+    //       data[i].profileImage = data[i].profileImage;
+    //     } else {
+    //       data[i].profileImage = null;
+    //     }
+    //   }
+    // }
 
     res.send({ data: data });
   } catch (error) {
     console.log(error);
     res.sendStatus(400);
   }
+});
+
+router.delete("/", async function (req, res) {
+  // console.log('Got query:', req.query);
+  // console.log('Got body:', req.body);
+  if (!req.query._id) {
+    return res.send({ error: "Please provide an id" });
+  }
+
+  var _id = req.query._id;
+
+  data = await Customer.findOne({
+    _id: _id,
+  });
+
+  console.log(data);
+
+  if (!_id) {
+    return res.send({ error: "No customer exist with this id" });
+  }
+
+  //  remove element by id
+  Customer.findOneAndDelete({ _id: _id })
+    .then((item) => {
+      // if (item.profileImage) {
+      //     fs.unlink(item.profileImage, (err) => {
+      //         if (err) throw err;
+      //         console.log('successfully deleted profileImage');
+      //     });
+      // }
+      res.sendStatus(200);
+    })
+    .catch((error) => {
+      //error handle
+      console.log(error);
+      res.sendStatus(400);
+    });
 });
 
 router.post(
@@ -203,83 +240,25 @@ router.post(
     }
   }
 );
-
-router.delete("/", async function (req, res) {
-  // console.log('Got query:', req.query);
-  // console.log('Got body:', req.body);
-  if (!req.query._id) {
-    return res.send({ error: "Please provide an id" });
-  }
-
-  var _id = req.query._id;
-
-  data = await Customer.findOne({
-    _id: _id,
-  });
-
-  console.log(data);
-
-  if (!_id) {
-    return res.send({ error: "No customer exist with this id" });
-  }
-
-  //  remove element by id
-  Customer.findOneAndDelete({ _id: _id })
-    .then((item) => {
-      // if (item.profileImage) {
-      //     fs.unlink(item.profileImage, (err) => {
-      //         if (err) throw err;
-      //         console.log('successfully deleted profileImage');
-      //     });
-      // }
-      res.sendStatus(200);
-    })
-    .catch((error) => {
-      //error handle
-      console.log(error);
-      res.sendStatus(400);
-    });
-});
-
-router.put("/", async function (req, res) {
-  if (!req.query._id) {
-    return res.send({ error: "Please provide an id", field: "_id" });
-  }
-
-  var _id = req.query._id;
-
-  data = await Customer.findOne({
-    _id: _id,
-  });
-
-  console.log(data);
-
-  if (!_id) {
-    return res.send({ error: "No customer exist with this id" });
-  }
-
-  upload(req, res, async function (err) {
-    if (err instanceof multer.MulterError) {
-      // A Multer error occurred when uploading.
-      console.log("A Multer error occurred when uploading.");
-      console.log(err);
-      return res
-        .status(400)
-        .send({ error: err.message, field: "profileImage" });
-      //   return res.status(400).send({error: 'Only .png, .jpg and .jpeg format allowed with maxsize 1Mb!', field: 'profileImage'});
-    } else if (err) {
-      // An unknown error occurred when uploading.
-      console.log("A Multer error occurred when uploading.");
-      console.log(err);
-      return res
-        .status(400)
-        .send({ error: err.message, field: "profileImage" });
-      //   return res.status(400).send({error: 'Only .png, .jpg and .jpeg format allowed with maxsize 1Mb!', field: 'profileImage'});
+router.put(
+  "/",
+  upload.fields([{ name: "profileImage", maxCount: 1 }]),
+  async function (req, res) {
+    if (!req.query._id) {
+      return res.send({ error: "Please provide an id", field: "_id" });
     }
 
-    console.log(req.file);
-    console.log("Got query:", req.query);
-    console.log("Got body:", req.body);
+    var _id = req.query._id;
+
+    data = await Customer.findOne({
+      _id: _id,
+    });
+
+    console.log(data);
+
+    if (!_id) {
+      return res.send({ error: "No customer exist with this id" });
+    }
 
     if (req.body.pincode) {
       var pincode = req.body.pincode;
@@ -292,13 +271,13 @@ router.put("/", async function (req, res) {
       }
     }
     // validate phone
-    // if(req.body.phone){
-    //     var phone = req.body.phone;
-    //     var phoneRegex = /^\d{10}$/;
-    //     if(!phoneRegex.test(phone)){
-    //         return res.status(400).send({error:'Invalid phone'});
-    //     }
-    // }
+    if (req.body.phone) {
+      var phone = req.body.phone;
+      var phoneRegex = /^\d{10}$/;
+      if (!phoneRegex.test(phone)) {
+        return res.status(400).send({ error: "Invalid phone" });
+      }
+    }
 
     // check type
     if (req.body.type) {
@@ -327,16 +306,16 @@ router.put("/", async function (req, res) {
           .send({ error: "Invalid jobSkills (array)", field: "jobSkills" });
       }
     }
-    // if (req.body.stateId && !ObjectId.isValid(req.body.stateId)) {
-    //   return res
-    //     .status(400)
-    //     .send({ error: "Invalid stateId", field: "stateId" });
-    // }
+    if (req.body.stateId && !ObjectId.isValid(req.body.stateId)) {
+      return res
+        .status(400)
+        .send({ error: "Invalid stateId", field: "stateId" });
+    }
 
     // cityId validate
-    // if (req.body.cityId && !ObjectId.isValid(req.body.cityId)) {
-    //   return res.status(400).send({ error: "Invalid cityId", field: "cityId" });
-    // }
+    if (req.body.cityId && !ObjectId.isValid(req.body.cityId)) {
+      return res.status(400).send({ error: "Invalid cityId", field: "cityId" });
+    }
 
     if (req.body.phone) {
       let customer = await Customer.findOne({
@@ -350,24 +329,19 @@ router.put("/", async function (req, res) {
       }
     }
 
-    console.log(req.file);
-    if (req.file) {
-      req.body.profileImage = "uploads/images/" + req.file.filename;
-      req.body.profileImage = await Cloudinary(req.file.path);
+    var update_query = {};
 
-      if (data.profileImage) {
-        fs.unlink(data.profileImage, (err) => {
-          if (err) {
-            console.log(err);
-          }
-          console.log({ data: "successfully deleted profileImage" });
-        });
-      }
+    if (req.files && req.files.profileImage) {
+      update_query.profileImage = await Cloudinary(
+        req.files.profileImage[0].path
+      );
     }
 
-    var update_query = {};
-    if (req.body.customerName && req.body.customerName != data.customerName) {
-      update_query.customerName = req.body.customerName;
+    if (req.body.firstName && req.body.firstName != data.firstName) {
+      update_query.firstName = req.body.firstName;
+    }
+    if (req.body.lastName && req.body.lastName != data.lastName) {
+      update_query.lastName = req.body.lastName;
     }
 
     // if(req.body.phone && req.body.phone != data.phone){
@@ -398,13 +372,13 @@ router.put("/", async function (req, res) {
       update_query.address = req.body.address;
     }
 
-    if (req.body.city && req.body.city != data.city) {
-      update_query.city = req.body.city;
-    }
+    // if (req.body.city && req.body.city != data.city) {
+    //   update_query.city = req.body.city;
+    // }
 
-    if (req.body.state && req.body.state != data.state) {
-      update_query.state = req.body.state;
-    }
+    // if (req.body.state && req.body.state != data.state) {
+    //   update_query.state = req.body.state;
+    // }
 
     if (req.body.companyName && req.body.companyName != data.companyName) {
       update_query.companyName = req.body.companyName;
@@ -422,55 +396,23 @@ router.put("/", async function (req, res) {
     if (req.body.countryCode && req.body.countryCode != data.countryCode) {
       update_query.countryCode = req.body.countryCode;
     }
+    console.log("update_query", update_query);
 
     //  update element in mongodb put
-    Customer.updateOne({ _id: _id }, { $set: update_query })
+    Customer.findOneAndUpdate(
+      { _id: _id },
+      { $set: update_query },
+      { new: true }
+    )
       .then((item) => {
-        return res.sendStatus(200);
+        return res.status(200).send(item);
       })
       .catch((error) => {
-        //error handle
         console.log(error);
         return res.status(400).send({ error: error });
       });
-    // }
-  });
-  // console.log('Got query:', req.query);
-  // console.log('Got body:', req.body);
-  // var _id = req.query._id;
-
-  // data = await Customer.findOne({
-  //     _id: _id
-  // })
-  // console.log(data);
-  // if (!_id){
-  //     res.send({error: "Please provide an id"});
-  // }else if (!_id){
-  //     res.send({error: "Please provide an id"});
-  // }else{
-
-  //     // if (req.files.profileImage) {
-  //     //     req.body.profileImage = 'uploads/images/' + req.files.profileImage[0].filename;
-  //     //     if (data.profileImage) {
-  //     //         fs.unlink(data.profileImage, (err) => {
-  //     //             if (err) throw err;
-  //     //             console.log('successfully deleted profileImage');
-  //     //         });
-  //     //     }
-
-  //     // }
-
-  //     //  update element in mongodb put
-  //     Customer.updateOne({_id:_id}, {$set: req.body})
-  //     .then((item) => {
-  //             res.sendStatus(200);
-  //     }).catch((error) => {
-  //         //error handle
-  //         console.log(error);
-  //         res.sendStatus(400);
-  //     });
-  // }
-});
+  }
+);
 
 router.put("/block", async function (req, res) {
   if (!req.query._id) {
