@@ -104,15 +104,8 @@ router.post(
     var image;
     console.log("req.files ===>", req.files);
     if (req.files && req.files.subCategoryImage) {
-      console.log("Got image:", req.files.subCategoryImage);
-      image =
-        "uploads/images/subCategoryImage/" +
-        req.files.subCategoryImage[0].filename;
-      console.log("img===>", req.files.subCategoryImage[0].filename);
+      image = await Cloudinary(req.files.subCategoryImage[0].path);
     }
-    const result = await cloudinary.uploader.upload(
-      req.files.subCategoryImage[0].path
-    );
 
     const categoryExists = await Category.exists({ _id: parentCategoryId });
     console.log(categoryExists);
@@ -123,12 +116,13 @@ router.post(
         subCategoryName: subCategoryName,
         category,
         parentCategoryId,
-        subCategoryImage: result.secure_url,
+        subCategoryImage: image,
         status,
         price,
+        sequenceNumber: await getNextSequence("subCategory"),
       });
 
-      console.log("item before save ==>", image);
+      console.log("item before save ==>", item);
 
       item
         .save(item)
@@ -185,20 +179,11 @@ router.put(
     console.log(data);
     if (!_id) {
       res.send({ error: "Please provide an id" });
-    } else if (!_id) {
+    } else if (!data) {
       res.send({ error: "No collection with this id" });
     } else {
       let result;
       if (req.files && req.files.subCategoryImage) {
-        // req.body.subCategoryImage =
-        //   "uploads/images/subCategoryImage/" +
-        //   req.files.subCategoryImage[0].filename;
-        // if (data.subCategoryImage) {
-        //   fs.unlink(data.subCategoryImage, (err) => {
-        //     if (err) throw err;
-        //     console.log("successfully deleted image");
-        //   });
-        // }
         result = await cloudinary.uploader.upload(
           req.files.subCategoryImage[0].path
         );
@@ -206,7 +191,8 @@ router.put(
       }
       // update image with cloudinary
       // req.body.subCategoryImage = result.secure_url;
-
+      var seq = await getNextSequence("SubCategory");
+      console.log("seq:======>", seq);
       console.log("req.body===>", req.body);
       //  update element in mongodb put
       SubCategory.updateOne({ _id: _id }, { $set: req.body })

@@ -28,10 +28,6 @@ router.post(
   "/",
   upload.fields([{ name: "categoryImage", maxCount: 1 }]),
   async (req, res) => {
-    console.log("Got query:", req.query);
-    console.log("Got body:", req.body);
-    console.log("Got files:", req.files);
-
     console.log("add to cart route hit successfully");
     var categoryName = req.body.categoryName;
     console.log("category body===>", req.body);
