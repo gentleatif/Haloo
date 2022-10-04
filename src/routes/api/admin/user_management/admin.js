@@ -15,17 +15,6 @@ router.get("/", async (req, res) => {
   try {
     data = await Admin.find(req.query);
 
-    // for (let i = 0; i < data.length; i++) {
-    //   if (data[i].profileImage) {
-    //     // check if file exist
-    //     if (fs.existsSync(data[i].profileImage)) {
-    //       data[i].profileImage = data[i].profileImage;
-    //     } else {
-    //       data[i].profileImage = null;
-    //     }
-    //   }
-    // }
-
     res.send({ data: data });
   } catch (error) {
     console.log(error);

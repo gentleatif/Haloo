@@ -15,10 +15,6 @@ router.post("/generate_otp", async (req, res) => {
   let { phone } = req.body;
 
   if (!phone) {
-    // return res
-    //   .status(400)
-    //   .send({ error: "Phone number is required", field: "phone" });
-
     return res
       .status(400)
       .json({ error: "Phone number is required", field: "phone" });
