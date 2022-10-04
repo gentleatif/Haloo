@@ -24,8 +24,6 @@ cloudinary.config({
   secure: true,
 });
 
-app.use(cors());
-
 // log all requests to the console
 app.use(function (req, res, next) {
   console.log(req.method, req.url);
@@ -42,6 +40,8 @@ app.use(bodyParser.json());
 
 app.use(useragent.express());
 app.use("/uploads", express.static("./uploads"));
+app.use(cors());
+
 // mogodb connection
 mongoose.connect(config.MONGODB_URL, {
   useNewUrlParser: true,

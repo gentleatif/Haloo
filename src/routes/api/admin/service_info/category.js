@@ -120,21 +120,21 @@ router.put(
       res.send({ error: "No collection with this id" });
     } else {
       if (req.files && req.files.categoryImage) {
-        req.body.categoryImage =
-          "uploads/images/categoryImage/" + req.files.categoryImage[0].filename;
+        // req.body.categoryImage =
+        //   "uploads/images/categoryImage/" + req.files.categoryImage[0].filename;
         req.body.categoryImage = await Cloudinary(
           req.files.categoryImage[0].path
         );
 
-        if (data.categoryImage) {
-          fs.unlink(data.categoryImage, (err) => {
-            if (err) throw err;
-            console.log("successfully deleted image");
-          });
-        }
+        // if (data.categoryImage) {
+        //   fs.unlink(data.categoryImage, (err) => {
+        //     if (err) throw err;
+        //     console.log("successfully deleted image");
+        //   });
+        // }
       }
 
-      console.log("req.body===>", req.body);
+      // console.log("req.body===>", req.body);
       //  update element in mongodb put
       Category.updateOne({ _id: _id }, { $set: req.body })
         .then(function (item) {
