@@ -65,7 +65,7 @@ router.post("/", async (req, res) => {
 
     console.log("Got query:", req.query);
     console.log("Got body:", req.body);
-    const category = req.body.category;
+    const subCategoryName = req.body.subCategoryName;
     const parentCategoryId = req.body.parentCategoryId;
     const sequenceNumber = req.body.sequenceNumber;
     const status = req.body.status;
@@ -83,6 +83,16 @@ router.post("/", async (req, res) => {
         .status(400)
         .send({ error: "Price is required!", field: "price" });
     }
+    // check if sub category name already exists
+    const subCategoryExists = await SubCategory.exists({
+      subCategoryName: subCategoryName,
+    });
+    if (subCategoryExists) {
+      res.send({
+        error: "Sub category already exists",
+        field: "subCategoryName",
+      });
+    }
 
     const categoryExists = await Category.exists({ _id: parentCategoryId });
     console.log(categoryExists);
@@ -93,7 +103,7 @@ router.post("/", async (req, res) => {
       });
     } else {
       var item = new SubCategory({
-        category,
+        subCategoryName: subCategoryName,
         parentCategoryId,
         subCategoryImage,
         price,

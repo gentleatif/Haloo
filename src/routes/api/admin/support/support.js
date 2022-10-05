@@ -46,7 +46,6 @@ router.post("/", async (req, res) => {
     if (!customerId || !ObjectId.isValid(customerId)) {
       return res.status(400).send({ error: "Please provide valid customerId" });
       return res.status(400).send({ error: "Please provide valid customerId" });
-
     }
 
     //  CHECK CUSTORMER ID EXIST OR NOT
@@ -55,7 +54,7 @@ router.post("/", async (req, res) => {
       return res.status(400).send({ error: "Please provide valid customerId" });
     }
 
-    var support = new Support({ customerId, query, status });
+    var support = new Support({ customerId, query, status, jobId, type });
 
     await support.save();
     return res.status(200).send("ok");

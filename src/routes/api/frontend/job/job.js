@@ -190,6 +190,7 @@ module.exports = function (getIOInstance) {
       otp,
       customerId: _id,
       subCategoryName,
+      vendorId,
     });
     // socket to vendor
     console.log("customer id ====>", _id);
@@ -395,7 +396,7 @@ module.exports = function (getIOInstance) {
 
     // keep sending current lat , lon to customer after every 2sec
     let customer = await Customer.findOne({ _id: customerId });
-    let vendor = await Vendor.findOne({ _id: vendorId });
+    let vendor = await Customer.findOne({ _id: vendorId });
 
     io.on("sendLocation", async (data) => {
       console.log("data", data);

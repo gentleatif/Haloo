@@ -6,10 +6,10 @@ const subCategorySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    category: {
-      type: String,
-      required: true,
-    },
+    // category: {
+    //   type: String,
+    //   required: true,
+    // },
     parentCategoryId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "category",
