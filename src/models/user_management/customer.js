@@ -34,7 +34,7 @@ const customerSchema = new mongoose.Schema(
       ref: "states",
     },
     phone: {
-      type: String,
+      type: Number,
       unique: true,
       trim: true,
     },

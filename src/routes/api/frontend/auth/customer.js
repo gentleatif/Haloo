@@ -9,6 +9,7 @@ const Customer = require("../../../../models/user_management/customer");
 const config = require("../../../../../config");
 
 router.post("/generate_otp", async (req, res) => {
+  console.log("generate otp route hit");
   console.log("Got query:", req.query);
   console.log("Got body:", req.body);
 
