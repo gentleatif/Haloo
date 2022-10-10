@@ -27,7 +27,12 @@ router.post(
     }
 
     encryptedPassword = await bcrypt.hash(password, 10);
-
+    let adminExists = await Admin.findOne({ email: email });
+    if (adminExists) {
+      return res.status(400).json({
+        message: "Admin already exists",
+      });
+    }
     const admin = await Admin.create({
       name,
       userRole,
