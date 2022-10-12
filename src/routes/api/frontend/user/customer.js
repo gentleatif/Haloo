@@ -231,18 +231,20 @@ router.put("/", async function (req, res) {
     let profileImages;
     console.log(req.file);
     if (req.file) {
-      req.body.profileImage =
-        "uploads/images/profileImage/" + req.file.filename;
+      // req.body.profileImage =
+      //   "uploads/images/profileImage/" + req.file.filename;
 
       if (req.customer.profileImage) {
-        fs.unlink(req.customer.profileImage, (err) => {
-          if (err) {
-            console.log(err);
-          }
-          console.log({ data: "successfully deleted profileImage" });
-        });
+        // fs.unlink(req.customer.profileImage, (err) => {
+        //   if (err) {
+        //     console.log(err);
+        //   }
+        //   console.log({ data: "successfully deleted profileImage" });
+        // });
       }
       profileImages = await Cloudinary(req.file.path);
+      console.log("profileImages", profileImages);
+      req.body.profileImage = profileImages;
     }
 
     //validate emailAddress
@@ -400,19 +402,19 @@ router.put("/upload-image", (req, res) => {
     // log file name from field
 
     if (req.files && req.files.addressProofImage) {
-      update_query.addressProofImage =
-        "uploads/images/addressProofImage/" +
-        req.files.addressProofImage[0].filename;
+      // update_query.addressProofImage =
+      //   "uploads/images/addressProofImage/" +
+      //   req.files.addressProofImage[0].filename;
 
       //    delete old file
-      if (req.customer.addressProofImage) {
-        fs.unlink(req.customer.addressProofImage, (err) => {
-          if (err) {
-            console.log(err);
-          }
-          console.log({ data: "successfully deleted addressProofImage" });
-        });
-      }
+      // if (req.customer.addressProofImage) {
+      //   fs.unlink(req.customer.addressProofImage, (err) => {
+      //     if (err) {
+      //       console.log(err);
+      //     }
+      //     console.log({ data: "successfully deleted addressProofImage" });
+      //   });
+      // }
       update_query.addressProofImage = await Cloudinary(
         req.files.addressProofImage[0].path
       );

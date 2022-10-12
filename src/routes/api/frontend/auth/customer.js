@@ -62,8 +62,8 @@ router.post("/generate_otp", async (req, res) => {
       otpExpiry,
     });
     await customer.save();
-    console.log("customer", customer);
-    // return res.send({ data: { id: customer._id } });
+    console.log("customer ------->", customer);
+
     return res.status(200).json({ data: { id: customer._id } });
   }
 });
