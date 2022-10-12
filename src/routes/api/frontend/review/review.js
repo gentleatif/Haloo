@@ -129,7 +129,8 @@ router.post("/customer", async function (req, res) {
   var jobId = req.body.jobId;
   // find customer of
   let job = await Job.findOne({ _id: jobId });
-  let customerId = job.customerId;
+  let customerId = job?.customerId;
+
   var rating = parseFloat(req.body.rating);
   var comment = req.body.comment;
   var reviewFor = "customer";
@@ -181,11 +182,11 @@ router.post("/customer", async function (req, res) {
 // create --> vendor
 router.post("/vendor", async function (req, res) {
   var customerId = req.customer._id;
-  var jobId = req.body.jobId;
+  var jobId = req.body?.jobId;
   console.log(customerId, jobId);
   // find customer of
   let job = await Job.findOne({ _id: jobId });
-  let vendorId = job.vendorId;
+  let vendorId = job?.vendorId;
   var rating = parseFloat(req.body.rating);
   var comment = req.body.comment;
   var reviewFor = "vendor";
