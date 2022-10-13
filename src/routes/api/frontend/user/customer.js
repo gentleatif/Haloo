@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Customer = require("../../../../models/user_management/customer");
+const State = require("../../../../models/service_info/state");
+const City = require("../../../../models/service_info/city");
 const fs = require("fs");
 const upload = require("../../../../middleware/multer").single("profileImage");
 const uploadMultiple = require("../../../../middleware/multer").fields([
@@ -458,7 +460,7 @@ router.put("/upload-image", (req, res) => {
 });
 
 router.put("/addaddress", async function (req, res) {
-  console.log("user details", req.customer);
+  console.log("user details add address  ===>", req.customer);
   let _id = req.customer._id;
 
   console.log("Got query:", req.query);
@@ -510,8 +512,46 @@ router.put("/addaddress", async function (req, res) {
   }
 
   // city
-  // if (!req.body.city) {
-  //   return res.status(400).send({ error: "city is required", field: "city" });
+  if (!req.body.cityId) {
+    return res.status(400).send({ error: "cityId is required", field: "city" });
+  }
+  if (!req.body.stateId) {
+    return res
+      .status(400)
+      .send({ error: "stateId is required", field: "state" });
+  }
+  // check if cityId is ObjectId or not
+  if (!mongoose.Types.ObjectId.isValid(req.body.cityId)) {
+    return res.status(400).send({ error: "Invalid cityId", field: "cityId" });
+  }
+  // check if stateId is ObjectId or not
+  if (!mongoose.Types.ObjectId.isValid(req.body.stateId)) {
+    return res.status(400).send({ error: "Invalid stateId", field: "stateId" });
+  }
+
+  // check if cityId and stateId is valid\
+  if (req.body.cityId) {
+    let city = await City.findOne({ _id: req.body.cityId });
+    if (!city) {
+      return res.status(400).send({ error: "City Not Exist ", field: "city" });
+    }
+  }
+  if (req.body.stateId) {
+    let state = await State.findOne({ _id: req.body.stateId });
+    if (!state) {
+      return res
+        .status(400)
+        .send({ error: "State Not Exist ", field: "state" });
+    }
+  }
+
+  // let city = await City.findOne({ _id: req.body.cityId });
+  // if (!city) {
+  //   return res.status(400).send({ error: "Invalid cityId", field: "city" });
+  // }
+  // let state = await State.findOne({ _id: req.body.stateId });
+  // if (!state) {
+  //   return res.status(400).send({ error: "Invalid stateId", field: "state" });
   // }
 
   // state
@@ -542,6 +582,8 @@ router.put("/addaddress", async function (req, res) {
     addressType,
     completedProfile,
     formStep,
+    lat,
+    lng,
   } = req.body;
 
   let newObject = {
@@ -554,6 +596,8 @@ router.put("/addaddress", async function (req, res) {
     cityId,
     stateId,
     addressType,
+    lat,
+    lng,
   };
 
   // update formStep completedProfile in mongodb
