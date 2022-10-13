@@ -569,7 +569,12 @@ router.put("/addaddress", async function (req, res) {
   //     .status(400)
   //     .send({ error: "cityId is required", field: "cityId" });
   // }
-
+  if (!req.body.lat) {
+    return res.status(400).send({ error: "lat is required", field: "lat" });
+  }
+  if (!req.body.lng) {
+    return res.status(400).send({ error: "lng is required", field: "lng" });
+  }
   let {
     firstName,
     lastName,
