@@ -26,6 +26,17 @@ router.get("/", async (req, res) => {
   try {
     let subCategoryName = req.query.subCategoryName;
     // console.log(data);
+    if (req.query.parentCategoryId) {
+      const subCategory = await SubCategory.find({
+        parentCategoryId: req.query.parentCategoryId,
+      });
+      return res.status(200).send({ data: subCategory });
+    }
+
+    if (req.query._id) {
+      const subCategory = await SubCategory.findById(req.query._id);
+      return res.status(200).send({ data: subCategory });
+    }
 
     var query = {
       category: { $regex: new RegExp("^" + subCategoryName + ".*", "i") },
@@ -36,7 +47,7 @@ router.get("/", async (req, res) => {
     let categoryData = await Category.find(query2);
     // send both category data in response as well as sub category data
     const data = { subCategory: subCategoryData, category: categoryData };
-    res.status(200).send({ data: data });
+    return res.status(200).send({ data: data });
   } catch (error) {
     console.log(error);
     res.sendStatus(400);

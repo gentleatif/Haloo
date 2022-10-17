@@ -11,9 +11,12 @@ const multer = require("multer");
 const Cloudinary = require("../../../../utils/upload");
 
 router.get("/", async (req, res) => {
-  console.log("Got query: =================>", req.query);
   try {
     const categoryName = req.query.categoryName;
+    if (req.query._id) {
+      const category = await Category.findById(req.query._id);
+      res.status(200).send({ data: category });
+    }
     var categories;
     if (categoryName != undefined) {
       var query = { categoryName: { $regex: new RegExp(categoryName, "i") } };
