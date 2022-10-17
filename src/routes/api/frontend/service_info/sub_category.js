@@ -50,7 +50,7 @@ router.get("/", async (req, res) => {
     return res.status(200).send({ data: data });
   } catch (error) {
     console.log(error);
-    res.sendStatus(400);
+    return res.sendStatus(400);
   }
 });
 

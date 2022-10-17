@@ -15,7 +15,7 @@ router.get("/", async (req, res) => {
     const categoryName = req.query.categoryName;
     if (req.query._id) {
       const category = await Category.findById(req.query._id);
-      res.status(200).send({ data: category });
+      return res.status(200).send({ data: category });
     }
     var categories;
     if (categoryName != undefined) {
@@ -24,10 +24,10 @@ router.get("/", async (req, res) => {
     } else {
       categories = await Category.find({});
     }
-    res.status(200).send({ data: categories });
+    return res.status(200).send({ data: categories });
   } catch (error) {
     console.log(error);
-    res.status(400).send({ error: "server error occur" });
+    return res.status(400).send({ error: "server error occur" });
   }
 });
 
