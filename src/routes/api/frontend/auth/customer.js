@@ -48,11 +48,12 @@ router.post("/generate_otp", async (req, res) => {
     customer.otpExpiry = Date.now() + 2 * 60 * 1000;
     await customer.save();
     console.log("customer", customer);
-
-    // send new user if type is not save
     if (!customer.type) {
       return res.status(200).json({ data: { id: customer._id } });
     }
+    return res
+      .status(200)
+      .json({ data: { id: customer._id, type: customer.type } });
   } else {
     let otp = generate_otp(4);
     let otpExpiry = Date.now() + 2 * 60 * 100000;
@@ -63,13 +64,12 @@ router.post("/generate_otp", async (req, res) => {
     });
     await customer.save();
     console.log("customer ------->", customer);
-
     return res.status(200).json({ data: { id: customer._id } });
   }
 });
 
 router.post("/verify_otp", async (req, res) => {
-  let { id, otp } = req.body;
+  let { id, otp, type } = req.body;
 
   if (!id) {
     return res
@@ -95,14 +95,14 @@ router.post("/verify_otp", async (req, res) => {
     }
     //
 
-    // if (!customer.type) {
-    //     console.log('customer.type', customer.type);
-    //     console.log('type', type);
-    //     if ((!type) || !(type === 'vendor' || type === 'customer')){
-    //         return res.status(400).send({error:'Type is required (vendor/customer)', field:'type'});
-    //     }
-    //     customer.type = type;
-    // }
+    if (!customer.type) {
+      if (!type || !(type === "vendor" || type === "customer")) {
+        return res
+          .status(400)
+          .send({ error: "Type is required (vendor/customer)", field: "type" });
+      }
+      customer.type = type;
+    }
     // check otp generated
     if (!(customer.otp || customer.otpExpiry)) {
       return res.status(400).json({ error: "OTP not generated", field: "otp" });
