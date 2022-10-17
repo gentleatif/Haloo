@@ -362,7 +362,6 @@ module.exports = function (getIOInstance) {
         return res.status(400).send({ error: "Job is expired" });
       }
     }
-    console.log("job =====>", job);
 
     if (!job?.scheduleTime) {
       // can't accept job after 3min of job created at
@@ -395,8 +394,8 @@ module.exports = function (getIOInstance) {
     }
 
     // keep sending current lat , lon to customer after every 2sec
-    let customer = await Customer.findOne({ _id: customerId });
-    let vendor = await Customer.findOne({ _id: vendorId });
+    // let customer = await Customer.findOne({ _id: customerId });
+    // let vendor = await Customer.findOne({ _id: vendorId });
 
     io.on("sendLocation", async (data) => {
       console.log("data", data);
