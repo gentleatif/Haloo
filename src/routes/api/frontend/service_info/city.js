@@ -8,7 +8,7 @@ router.get("/", async (req, res) => {
   console.log("Got query:", req.query);
 
   if (req.query._id) {
-    req.query._id = ObjectId(req.query._id);
+    query._id = ObjectId(req.query._id);
   }
   if (req.query.stateId) {
     req.query.stateId = ObjectId(req.query.stateId);

@@ -193,7 +193,6 @@ module.exports = function (getIOInstance) {
       vendorId,
     });
     // socket to vendor
-    console.log("customer id ====>", _id);
     // find all rating of vendorId calculate avg of this vendor
     let customerAvgRating = await Review.find({
       customerId: req.customer._id,
@@ -211,7 +210,6 @@ module.exports = function (getIOInstance) {
     let vendor = await Customer.findOne({ _id: vendorId });
     let vendorSocketId = vendor.socketId;
     console.log("vendorSocketId ====>", vendorSocketId);
-    // socket data
     var socket_data = {
       type: "job_alert",
       data: {
