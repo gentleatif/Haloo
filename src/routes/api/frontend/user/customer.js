@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Customer = require("../../../../models/user_management/customer");
+const State = require("../../../../models/service_info/state");
+const City = require("../../../../models/service_info/city");
 const fs = require("fs");
 const upload = require("../../../../middleware/multer").single("profileImage");
 const uploadMultiple = require("../../../../middleware/multer").fields([
@@ -10,6 +12,7 @@ const uploadMultiple = require("../../../../middleware/multer").fields([
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 const multer = require("multer");
+const Cloudinary = require("../../../../utils/upload");
 
 router.get("/", async (req, res) => {
   // console.log(...req.query);
@@ -135,96 +138,12 @@ router.get("/", async (req, res) => {
     if (data.length) {
       return res.status(200).send({ data: data[0] });
     }
-    res.send({ data: data });
+    res.status.apply(200).send({ data: data });
   } catch (error) {
     console.log(error);
     res.status(400).send({ error: error });
   }
 });
-
-// router.post('/', upload.single('profileImage'), async (req,res) =>{
-//     console.log('Got query:', req.query);
-//     console.log('Got body:', req.body);
-
-//     try{
-//         var {
-//             companyName,
-//             customerName,
-//             emailAddress,
-//             firstName,
-//             lastName,
-//             type,
-//             phone,
-//             ageBracket,
-//             noOfJobs,
-//             address,
-//             city,
-//             state,
-//             pincode,
-//             averageRating,
-//             lastAccessOn,
-//             codStatus,
-//             status } = req.body;
-
-//         var profileImage;
-//         if (req.files.profileImage) {
-//             profileImage = 'uploads/images/' + req.files.profileImage[0].filename;
-//         }
-
-//         var newCustomer = new Customer({
-//             companyName,
-//             customerName,
-//             emailAddress,
-//             firstName,
-//             lastName,
-//             type,
-//             phone,
-//             ageBracket,
-//             noOfJobs,
-//             address,
-//             city,
-//             state,
-//             pincode,
-//             averageRating,
-//             lastAccessOn,
-//             codStatus,
-//             status });
-
-//         await newCustomer.save();
-
-//         return res.status(200).send('ok');
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(400).send(error);
-//     }
-// })
-
-// router.delete("/" ,async function(req,res){
-//     // console.log('Got query:', req.query);
-//     // console.log('Got body:', req.body);
-//     var _id = req.customer._id;
-//
-//     if(!_id){
-//         return res.status(400).send('Unable to get id from token please relogin');
-//
-//     }else{
-//         //  remove element by id
-//         Customer.findOneAndDelete({_id:_id})
-//             .then((item) => {
-//                 if (item.profileImage) {
-//                     fs.unlink(item.profileImage, (err) => {
-//                         if (err) console.log(err);;
-//                         console.log('successfully deleted profileImage');
-//                     });
-//                 }
-//                 res.sendStatus(200);
-//             }).catch((error) => {
-//             //error handle
-//             console.log(error);
-//             res.status(400).send({error: error});
-//         });
-//     }
-// });
 
 router.put("/", async function (req, res) {
   upload(req, res, async function (err) {
@@ -253,15 +172,6 @@ router.put("/", async function (req, res) {
     console.log(req.file);
     console.log("Got query:", req.query);
     console.log("Got body:", req.body);
-
-    // if(req.body.pincode){
-    //     let pincode = req.body.pincode;
-    //     console.log('pincode', pincode);
-    //     let pincodeRegex = /^\d{6}$/;
-    //     if(!pincodeRegex.test(pincode)){
-    //         return res.status(400).send({error:'Invalid pincode', field: 'pincode'});
-    //     }
-    // }
 
     // check type
     if (req.body.type) {
@@ -323,16 +233,20 @@ router.put("/", async function (req, res) {
     let profileImages;
     console.log(req.file);
     if (req.file) {
-      req.body.profileImage =
-        "uploads/images/profileImage/" + req.file.filename;
+      // req.body.profileImage =
+      //   "uploads/images/profileImage/" + req.file.filename;
+
       if (req.customer.profileImage) {
-        fs.unlink(req.customer.profileImage, (err) => {
-          if (err) {
-            console.log(err);
-          }
-          console.log({ data: "successfully deleted profileImage" });
-        });
+        // fs.unlink(req.customer.profileImage, (err) => {
+        //   if (err) {
+        //     console.log(err);
+        //   }
+        //   console.log({ data: "successfully deleted profileImage" });
+        // });
       }
+      profileImages = await Cloudinary(req.file.path);
+      console.log("profileImages", profileImages);
+      req.body.profileImage = profileImages;
     }
 
     //validate emailAddress
@@ -378,6 +292,7 @@ router.put("/", async function (req, res) {
     if (req.body.profileImage) {
       update_query.profileImage = req.body.profileImage;
       console.log("profileImage", update_query.profileImage);
+      // profileImages = await Cloudinary(req.file.path);
     }
 
     // if(req.body.address && req.body.address != data.address){
@@ -422,9 +337,13 @@ router.put("/", async function (req, res) {
       update_query.completedProfile = req.body.completedProfile;
     }
     //  update element in mongodb put
-    Customer.updateOne({ _id: _id }, { $set: update_query })
+    Customer.findOneAndUpdate(
+      { _id: _id },
+      { $set: update_query },
+      { returnOriginal: false, upsert: true }
+    )
       .then((item) => {
-        return res.sendStatus(200);
+        return res.status(200).send({ data: item });
       })
       .catch((error) => {
         //error handle
@@ -485,39 +404,52 @@ router.put("/upload-image", (req, res) => {
     // log file name from field
 
     if (req.files && req.files.addressProofImage) {
-      update_query.addressProofImage =
-        "uploads/images/addressProofImage/" +
-        req.files.addressProofImage[0].filename;
+      // update_query.addressProofImage =
+      //   "uploads/images/addressProofImage/" +
+      //   req.files.addressProofImage[0].filename;
+
       //    delete old file
-      if (req.customer.addressProofImage) {
-        fs.unlink(req.customer.addressProofImage, (err) => {
-          if (err) {
-            console.log(err);
-          }
-          console.log({ data: "successfully deleted addressProofImage" });
-        });
-      }
+      // if (req.customer.addressProofImage) {
+      //   fs.unlink(req.customer.addressProofImage, (err) => {
+      //     if (err) {
+      //       console.log(err);
+      //     }
+      //     console.log({ data: "successfully deleted addressProofImage" });
+      //   });
+      // }
+      update_query.addressProofImage = await Cloudinary(
+        req.files.addressProofImage[0].path
+      );
     }
 
-    if (req.files && req.files.certificateProofImage) {
-      update_query.certificateProofImage =
-        "uploads/images/certificateProofImage/" +
-        req.files.certificateProofImage[0].filename;
+    if (req.files && req.files.certificateImage) {
+      console.log("certificateImage", req.files.certificateImage);
+      // update_query.certificateImage =
+      //   "uploads/images/certificateProofImage/" +
+      //   req.files.certificateImage[0].filename;
+
       //    delete old file
-      if (req.customer.certificateProofImage) {
-        fs.unlink(req.customer.certificateProofImage, (err) => {
-          if (err) {
-            console.log(err);
-          }
-          console.log({ data: "successfully deleted certificateProofImage" });
-        });
-      }
+      // if (req.customer.certificateProofImage) {
+      //   fs.unlink(req.customer.certificateProofImage, (err) => {
+      //     if (err) {
+      //       console.log(err);
+      //     }
+      //     console.log({ data: "successfully deleted certificateProofImage" });
+      //   });
+      // }
+      update_query.certificateImage = await Cloudinary(
+        req.files.certificateImage[0].path
+      );
     }
 
     //    save to mongodb
-    Customer.updateOne({ _id: _id }, { $set: update_query })
+    Customer.findOneAndUpdate(
+      { _id: _id },
+      { $set: update_query },
+      { returnOriginal: false, upsert: true }
+    )
       .then((item) => {
-        return res.sendStatus(200);
+        return res.status(200).send({ data: item });
       })
       .catch((error) => {
         //error handle
@@ -528,20 +460,24 @@ router.put("/upload-image", (req, res) => {
 });
 
 router.put("/addaddress", async function (req, res) {
-  console.log("user details", req.customer);
+  console.log("user details add address  ===>", req.customer);
   let _id = req.customer._id;
 
   console.log("Got query:", req.query);
   console.log("Got body:", req.body);
 
-  // //first name
-  // if(!req.body.firstName){
-  //     return res.status(400).send({error: 'firstName is required', field: 'firstName'});
+  //first name
+  // if (!req.body.firstName) {
+  //   return res
+  //     .status(400)
+  //     .send({ error: "firstName is required", field: "firstName" });
   // }
-  //
+
   // //last name
-  // if(!req.body.lastName){
-  //     return res.status(400).send({error: 'lastName is required', field: 'lastName'});
+  // if (!req.body.lastName) {
+  //   return res
+  //     .status(400)
+  //     .send({ error: "lastName is required", field: "lastName" });
   // }
 
   // blockNo
@@ -576,15 +512,69 @@ router.put("/addaddress", async function (req, res) {
   }
 
   // city
-  if (!req.body.city) {
-    return res.status(400).send({ error: "city is required", field: "city" });
+  if (!req.body.cityId) {
+    return res.status(400).send({ error: "cityId is required", field: "city" });
   }
+  if (!req.body.stateId) {
+    return res
+      .status(400)
+      .send({ error: "stateId is required", field: "state" });
+  }
+  // check if cityId is ObjectId or not
+  if (!mongoose.Types.ObjectId.isValid(req.body.cityId)) {
+    return res.status(400).send({ error: "Invalid cityId", field: "cityId" });
+  }
+  // check if stateId is ObjectId or not
+  if (!mongoose.Types.ObjectId.isValid(req.body.stateId)) {
+    return res.status(400).send({ error: "Invalid stateId", field: "stateId" });
+  }
+
+  // check if cityId and stateId is valid\
+  if (req.body.cityId) {
+    let city = await City.findOne({ _id: req.body.cityId });
+    if (!city) {
+      return res.status(400).send({ error: "City Not Exist ", field: "city" });
+    }
+  }
+  if (req.body.stateId) {
+    let state = await State.findOne({ _id: req.body.stateId });
+    if (!state) {
+      return res
+        .status(400)
+        .send({ error: "State Not Exist ", field: "state" });
+    }
+  }
+
+  // let city = await City.findOne({ _id: req.body.cityId });
+  // if (!city) {
+  //   return res.status(400).send({ error: "Invalid cityId", field: "city" });
+  // }
+  // let state = await State.findOne({ _id: req.body.stateId });
+  // if (!state) {
+  //   return res.status(400).send({ error: "Invalid stateId", field: "state" });
+  // }
 
   // state
-  if (!req.body.state) {
-    return res.status(400).send({ error: "state is required", field: "state" });
-  }
+  // if (!req.body.state) {
+  //   return res.status(400).send({ error: "state is required", field: "state" });
+  // }
+  // if (!req.body.stateId) {
+  //   return res
+  //     .status(400)
+  //     .send({ error: "stateId is required", field: "stateId" });
+  // }
 
+  // if (!req.body.cityId) {
+  //   return res
+  //     .status(400)
+  //     .send({ error: "cityId is required", field: "cityId" });
+  // }
+  if (!req.body.lat) {
+    return res.status(400).send({ error: "lat is required", field: "lat" });
+  }
+  if (!req.body.lng) {
+    return res.status(400).send({ error: "lng is required", field: "lng" });
+  }
   let {
     firstName,
     lastName,
@@ -592,11 +582,13 @@ router.put("/addaddress", async function (req, res) {
     apartment,
     nearbyLandmark,
     pincode,
-    city,
-    state,
+    cityId,
+    stateId,
     addressType,
     completedProfile,
     formStep,
+    lat,
+    lng,
   } = req.body;
 
   let newObject = {
@@ -606,18 +598,21 @@ router.put("/addaddress", async function (req, res) {
     apartment,
     nearbyLandmark,
     pincode,
-    city,
-    state,
+    cityId,
+    stateId,
     addressType,
+    lat,
+    lng,
   };
 
   // update formStep completedProfile in mongodb
-  Customer.updateOne(
+  Customer.findOneAndUpdate(
     { _id: _id },
-    { $push: { address: newObject }, $set: { formStep, completedProfile } }
+    { $push: { address: newObject }, $set: { formStep, completedProfile } },
+    { returnOriginal: false, upsert: true }
   )
     .then((item) => {
-      return res.sendStatus(200);
+      return res.status(200).send({ data: item });
     })
     .catch((error) => {
       //error handle
@@ -630,9 +625,8 @@ router.put("/addaddress", async function (req, res) {
 router.put("/updateaddress", async function (req, res) {
   console.log("user details", req.customer);
   let _id = req.customer._id;
-
   console.log("Got query:", req.query);
-  console.log("Got body:", req.body);
+  console.log("Got body updateaddress route hit:", req.body);
 
   // validate Object id in req.query
   if (
@@ -653,8 +647,8 @@ router.put("/updateaddress", async function (req, res) {
       param === "apartment" ||
       param === "nearbyLandmark" ||
       param === "pincode" ||
-      param === "city" ||
-      param === "state" ||
+      param === "cityId" ||
+      param === "stateId" ||
       param === "addressType"
     ) {
       updateObj.$set["address.$." + param] = req.body[param];
@@ -666,15 +660,17 @@ router.put("/updateaddress", async function (req, res) {
   let { completedProfile, formStep } = req.body;
 
   // update array element
-  Customer.updateOne(
+  Customer.findOneAndUpdate(
     { _id: _id, "address._id": req.query.addressId },
     {
       ...updateObj,
       $set: { formStep, completedProfile },
-    }
+    },
+    { returnOriginal: false, upsert: true }
   )
     .then((item) => {
-      return res.sendStatus(200);
+      console.log("update address===>", item);
+      return res.status(200).send({ data: item });
     })
     .catch((error) => {
       //error handle
@@ -695,12 +691,13 @@ router.delete("/deleteaddress", async function (req, res) {
   }
 
   //    delete address
-  Customer.updateOne(
+  Customer.findOneAndUpdate(
     { _id: _id },
-    { $pull: { address: { _id: req.body.addressId } } }
+    { $pull: { address: { _id: req.body.addressId } } },
+    { returnOriginal: false, upsert: true }
   )
     .then((item) => {
-      return res.sendStatus(200);
+      return res.status(200).send({ data: item });
     })
     .catch((error) => {
       //error handle

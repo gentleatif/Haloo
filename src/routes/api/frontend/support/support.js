@@ -7,6 +7,7 @@ const ObjectId = mongoose.Types.ObjectId;
 const Customer = require("../../../../models/user_management/customer");
 const upload = require("../../../../middleware/multer").single("supportImage");
 const multer = require("multer");
+const Cloudinary = require("../../../../utils/upload");
 
 router.get("/", async (req, res) => {
   console.log("Got query:", req.query);
@@ -35,7 +36,7 @@ router.get("/", async (req, res) => {
       //     },
       // },
     ]);
-    res.send({ data: data });
+    res.status(200).send({ data: data });
   } catch (error) {
     console.log(error);
     res.sendStatus(400);
@@ -94,6 +95,7 @@ router.post("/", async (req, res) => {
       console.log("Got file:", req.file);
       if (req.file) {
         supportImage = "uploads/images/supportImage/" + req.file.filename;
+        supportImage = await Cloudinary(req.file.path);
       }
 
       let support = new Support({
@@ -105,7 +107,8 @@ router.post("/", async (req, res) => {
       });
 
       await support.save();
-      return res.status(200).send("ok");
+      // return res.status(200).send("ok");
+      return res.status(200).json({ data: support });
     } catch (error) {
       console.log(error);
       return res.status(400).send(error);
@@ -118,12 +121,13 @@ router.delete("/", async function (req, res) {
   // console.log('Got body:', req.body);
   let _id = req.query.id;
   if (!_id) {
-    res.send({ error: "Please provide an id" });
+    res.send({ error: "Please provide an id", field: "id" });
   } else {
     //  remove element by id
     Support.remove({ _id })
       .then((item) => {
-        res.sendStatus(200);
+        // res.sendStatus(200);
+        return res.status(200).json({ data: item });
       })
       .catch((error) => {
         //error handle
@@ -186,6 +190,7 @@ router.put("/", async function (req, res) {
       console.log(req.file);
       if (req.file) {
         supportImage = "uploads/images/supportImage/" + req.file.filename;
+        supportImage = await Category(req.file.path);
         if (support.supportImage) {
           fs.unlink(support.supportImage, (err) => {
             if (err) {
@@ -196,12 +201,14 @@ router.put("/", async function (req, res) {
         }
       }
 
-      Support.updateOne(
+      Support.findOneAndUpdate(
         { _id: req.query.id },
-        { $set: { query, supportImage, type } }
+        { $set: { query, supportImage, type } },
+        { returnOriginal: false, upsert: true }
       )
         .then((item) => {
-          return res.sendStatus(200);
+          // return res.sendStatus(200);
+          return res.status(200).json({ data: item });
         })
         .catch((error) => {
           //error handle

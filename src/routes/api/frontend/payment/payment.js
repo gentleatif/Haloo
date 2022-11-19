@@ -158,9 +158,25 @@ router.post("/verifyOrder", async (req, res) => {
     // send socket to vendor that payment is successful
     // 1. find job by order_id
     let job = await Order.findOne({ razorPayOrderId: order_id });
+    if (!job) {
+      return res.status(400).json({
+        message: "job is not exist",
+      });
+    }
     // 2. find vendor by job.vendor
-    let vendor = await Customer.findOne({ _id: job.vendorId });
-    let vendorSocketId = vendor.socketId;
+    let vendor = await Customer.findOne({ _id: job?.vendorId });
+    if (!vendor) {
+      return res.status(400).json({
+        message: "vendor is not exist",
+      });
+    }
+    let vendorSocketId = vendor?.socketId;
+    if (!vendorSocketId) {
+      return res.status(400).json({
+        message: "vendorSocketId is not exist",
+      });
+    }
+
     // find socket of this customer
     // send socket request to this customer
     if (vendorSocketId) {

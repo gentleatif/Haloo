@@ -36,7 +36,9 @@ router.post("/", async (req, res) => {
   contactInfo
     .save()
     .then(function (item) {
-      res.sendStatus(200);
+      // res.sendStatus(200);
+      console.log("contact item ===> ", item);
+      return res.status(200).json({ data: item });
     })
     .catch((error) => {
       //error handle

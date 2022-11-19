@@ -13,7 +13,6 @@ const cron = require("node-cron");
 module.exports = function (getIOInstance) {
   router.get("/", async function (req, res) {
     // sorting by date and filter by live ,completed, cancelled, date
-    console.log("Got query:", req.query);
     if (req.query.columnName) {
       delete req.query.columnName;
     }
@@ -82,8 +81,41 @@ module.exports = function (getIOInstance) {
             $or: [{ status: { $ne: "rejected" } }],
           },
         },
-
-        // sort by date in desc
+        // rating of that job to customer
+        {
+          $lookup: {
+            from: "reviews",
+            localField: "_id",
+            foreignField: "jobId",
+            // start
+            pipeline: [
+              {
+                $match: {
+                  reviewFor: req.customer.type,
+                },
+              },
+            ],
+            as: "reviews",
+          },
+        },
+        {
+          $unwind: {
+            path: "$reviews",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        // add rating field and remove reviews
+        {
+          $addFields: {
+            rating: "$reviews.rating",
+          },
+        },
+        // remove reviews field
+        {
+          $project: {
+            reviews: 0,
+          },
+        },
         {
           $sort: {
             createdAt: -1,
@@ -144,8 +176,8 @@ module.exports = function (getIOInstance) {
       _id: subCategoryId,
     });
     let subCategoryImg = subCategory.subCategoryImage;
-    let subCategoryName = subCategory.name;
-    // let totalAmount = subCategory.price;
+    let subCategoryName = subCategory.subCategoryName;
+    // let toltalAmount = subCategory.price;
     // temporary hardcoded
     let totalAmount = "83";
     let finalAmount = "83";
@@ -158,9 +190,9 @@ module.exports = function (getIOInstance) {
       otp,
       customerId: _id,
       subCategoryName,
+      vendorId,
     });
     // socket to vendor
-    console.log("customer id ====>", _id);
     // find all rating of vendorId calculate avg of this vendor
     let customerAvgRating = await Review.find({
       customerId: req.customer._id,
@@ -178,7 +210,6 @@ module.exports = function (getIOInstance) {
     let vendor = await Customer.findOne({ _id: vendorId });
     let vendorSocketId = vendor.socketId;
     console.log("vendorSocketId ====>", vendorSocketId);
-    // socket data
     var socket_data = {
       type: "job_alert",
       data: {
@@ -236,7 +267,7 @@ module.exports = function (getIOInstance) {
         $or: [{ customerId: req.customer._id }, { vendorId: req.customer._id }],
       })
         .then(function (item) {
-          res.sendStatus(200);
+          return res.status(200).json({ data: item });
         })
         .catch((error) => {
           //error handle
@@ -260,7 +291,7 @@ module.exports = function (getIOInstance) {
       let { subCategoryId, vendorId, ScheduleTime, address, discount } =
         req.body;
 
-      Job.updateOne(
+      Job.findOneAndUpdate(
         {
           _id: _id,
           $or: [
@@ -268,10 +299,12 @@ module.exports = function (getIOInstance) {
             { vendorId: req.customer._id },
           ],
         },
-        { $set: { subCategoryId, vendorId, ScheduleTime, address, discount } }
+        { $set: { subCategoryId, vendorId, ScheduleTime, address, discount } },
+        { returnOriginal: false, upsert: true }
       )
         .then(function (item) {
-          res.sendStatus(200);
+          // res.sendStatus(200);
+          return res.status(200).json({ data: item });
         })
         .catch((error) => {
           //error handle
@@ -327,7 +360,6 @@ module.exports = function (getIOInstance) {
         return res.status(400).send({ error: "Job is expired" });
       }
     }
-    console.log("job =====>", job);
 
     if (!job?.scheduleTime) {
       // can't accept job after 3min of job created at
@@ -359,12 +391,32 @@ module.exports = function (getIOInstance) {
       io.to(customerSocketId).emit("accept", socket_data);
     }
 
-    Job.updateOne(
+    // keep sending current lat , lon to customer after every 2sec
+    // let customer = await Customer.findOne({ _id: customerId });
+    // let vendor = await Customer.findOne({ _id: vendorId });
+
+    io.on("sendLocation", async (data) => {
+      console.log("data", data);
+      // 1. lat
+      // 2. lon
+      // 3. jobId
+      // find job by jobId
+      const job = await Job.findOne({ _id: data.jobId });
+      const customer = await Customer.findOne({ _id: job.customerId });
+      const customerSocketId = customer.socketId;
+      // send lat lon to vendor
+      io.broadcast.to(customerSocketId).emit("sendLocation", data);
+      // socket.broadcast.to(socketid).emit("message", "for your eyes only");
+    });
+
+    Job.findOneAndUpdate(
       { _id: _id, vendorId: req.customer._id },
-      { $set: { status: "upcoming" } }
+      { $set: { status: "upcoming" } },
+      { returnOriginal: false, upsert: true }
     )
       .then(function (item) {
-        res.sendStatus(200);
+        // res.sendStatus(200);
+        return res.status(200).json({ data: item });
       })
       .catch((error) => {
         //error handle
@@ -439,15 +491,20 @@ module.exports = function (getIOInstance) {
       // socket end
     }
 
-    Job.updateOne(
+    Job.findOneAndUpdate(
       {
         _id: _id,
         $or: [{ customerId: req.customer._id }, { vendorId: req.customer._id }],
       },
-      { $set: { status: "cancelled", rejectType, rejectReason } }
+      { $set: { status: "cancelled", rejectType, rejectReason } },
+      { returnOriginal: false, upsert: true }
     )
       .then(function (item) {
-        res.sendStatus(200);
+        // return new data not ack, and upsert true
+
+        return res.status(200).json({ data: item });
+        console.log("reject job  ===>", item);
+        // res.sendStatus(200);
       })
       .catch((error) => {
         //error handle
@@ -455,7 +512,6 @@ module.exports = function (getIOInstance) {
         res.status(400).send({ error: error });
       });
   });
-
   router.post("/verify_otp", (req, res) => {
     console.log("Got query:", req.query);
     console.log("Got body:", req.body);
@@ -506,15 +562,17 @@ module.exports = function (getIOInstance) {
           }
           // socket end
 
-          Job.updateOne(
+          Job.findOneAndUpdate(
             {
               _id: _id,
               $or: [{ customerId: req.user._id }, { vendorId: req.user._id }],
             },
-            { $set: { status: "complete" } }
+            { $set: { status: "complete" } },
+            { returnOriginal: false, upsert: true }
           )
             .then(function (item) {
-              res.sendStatus(200);
+              // res.sendStatus(200);
+              return res.status(200).json({ data: item });
             })
             .catch((error) => {
               //error handle

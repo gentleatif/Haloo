@@ -17,7 +17,7 @@ router.post("/generate_otp", async (req, res) => {
   if (!phone) {
     return res
       .status(400)
-      .send({ error: "Phone number is required", field: "phone" });
+      .json({ error: "Phone number is required", field: "phone" });
   }
 
   //phone regex E.164 format
@@ -25,7 +25,7 @@ router.post("/generate_otp", async (req, res) => {
   if (!phoneRegExp.test(phone)) {
     return res
       .status(400)
-      .send({ error: "Phone number must be E.164 format", field: "phone" });
+      .json({ error: "Phone number must be E.164 format", field: "phone" });
   }
 
   // check if phone number is already registered
@@ -36,9 +36,10 @@ router.post("/generate_otp", async (req, res) => {
   if (customer) {
     // check block
     if (customer.block) {
-      return res
-        .status(400)
-        .send({ error: "Your account is blocked by admin", field: "phone" });
+      return res.status(400).json({
+        error: "Your account is blocked by admin",
+        field: "phone",
+      });
     }
 
     //generate otp ans save
@@ -47,12 +48,12 @@ router.post("/generate_otp", async (req, res) => {
     customer.otpExpiry = Date.now() + 2 * 60 * 1000;
     await customer.save();
     console.log("customer", customer);
-
-    // send new user if type is not save
     if (!customer.type) {
-      return res.send({ data: { id: customer._id } });
+      return res.status(200).json({ data: { id: customer._id } });
     }
-    return res.send({ data: { id: customer._id } });
+    return res
+      .status(200)
+      .json({ data: { id: customer._id, type: customer.type } });
   } else {
     let otp = generate_otp(4);
     let otpExpiry = Date.now() + 2 * 60 * 100000;
@@ -62,13 +63,13 @@ router.post("/generate_otp", async (req, res) => {
       otpExpiry,
     });
     await customer.save();
-    console.log("customer", customer);
-    return res.send({ data: { id: customer._id } });
+    console.log("customer ------->", customer);
+    return res.status(200).json({ data: { id: customer._id } });
   }
 });
 
 router.post("/verify_otp", async (req, res) => {
-  let { id, otp } = req.body;
+  let { id, otp, type } = req.body;
 
   if (!id) {
     return res
@@ -85,28 +86,31 @@ router.post("/verify_otp", async (req, res) => {
 
   if (customer) {
     if (customer.block) {
+      // return res
+      //   .status(400)
+      //   .send({ error: "Your account is blocked by admin", field: "phone" });
       return res
         .status(400)
-        .send({ error: "Your account is blocked by admin", field: "phone" });
+        .json({ error: "Your account is blocked by admin", field: "phone" });
     }
     //
 
-    // if (!customer.type) {
-    //     console.log('customer.type', customer.type);
-    //     console.log('type', type);
-    //     if ((!type) || !(type === 'vendor' || type === 'customer')){
-    //         return res.status(400).send({error:'Type is required (vendor/customer)', field:'type'});
-    //     }
-    //     customer.type = type;
-    // }
+    if (!customer.type) {
+      if (!type || !(type === "vendor" || type === "customer")) {
+        return res
+          .status(400)
+          .send({ error: "Type is required (vendor/customer)", field: "type" });
+      }
+      customer.type = type;
+    }
     // check otp generated
     if (!(customer.otp || customer.otpExpiry)) {
-      return res.status(400).send({ error: "OTP not generated", field: "otp" });
+      return res.status(400).json({ error: "OTP not generated", field: "otp" });
     }
 
     // check if otp is expired
     if (customer.otpExpiry < Date.now()) {
-      return res.status(400).send({ error: "OTP expired", field: "otp" });
+      return res.status(400).json({ error: "OTP expired", field: "otp" });
     }
     if (customer.otp === otp) {
       // is loggedIn on new device save new device token

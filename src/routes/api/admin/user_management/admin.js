@@ -1,28 +1,19 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Admin = require('../../../../models/user_management/admin');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const fs = require('fs');
-const upload = require('../../../../middleware/multer');
+const Admin = require("../../../../models/user_management/admin");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const fs = require("fs");
+const upload = require("../../../../middleware/multer");
+const Cloudinary = require("../../../../utils/upload");
 
-router.get('/', async (req, res) => {
-  console.log('Got query:', req.query);
+router.get("/", async (req, res) => {
+  console.log("Got query admin route hit :");
+  console.log("Got query:", req.query);
   var findQuery = {};
 
   try {
     data = await Admin.find(req.query);
-
-    for(let i=0; i<data.length; i++){
-      if(data[i].profileImage){
-          // check if file exist
-          if(fs.existsSync(data[i].profileImage)){
-              data[i].profileImage = data[i].profileImage;
-          }else{
-              data[i].profileImage = null;
-          }
-      }
-  }
 
     res.send({ data: data });
   } catch (error) {
@@ -32,17 +23,18 @@ router.get('/', async (req, res) => {
 });
 
 router.post(
-  '/',
-  upload.fields([{ name: 'profileImage', maxCount: 1 }]),
+  "/",
+  upload.fields([{ name: "profileImage", maxCount: 1 }]),
   async (req, res) => {
-    console.log('Got query:', req.query);
-    console.log('Got body:', req.body);
+    console.log("Got query:", req.query);
+    console.log("Got body:", req.body);
 
     let { name, userRole, email, password, status } = req.body;
 
     var profileImage;
     if (req.files && req.files.profileImage) {
-      profileImage = 'uploads/images/' + req.files.profileImage[0].filename;
+      profileImage = "uploads/images/" + req.files.profileImage[0].filename;
+      profileImage = await Cloudinary(req.files.profileImage[0].path);
     }
 
     encryptedPassword = await bcrypt.hash(password, 10);
@@ -57,8 +49,8 @@ router.post(
     });
 
     // Create token
-    const token = jwt.sign({ admin_id: admin._id, email }, 'config.TOKEN_KEY', {
-      expiresIn: '265d',
+    const token = jwt.sign({ admin_id: admin._id, email }, "config.TOKEN_KEY", {
+      expiresIn: "265d",
     });
     // save user token
     admin.token = token;
@@ -77,12 +69,12 @@ router.post(
   }
 );
 
-router.delete('/', async function (req, res) {
+router.delete("/", async function (req, res) {
   // console.log('Got query:', req.query);
   // console.log('Got body:', req.body);
   var _id = req.query._id;
   if (!_id) {
-    res.send({ error: 'Please provide an id' });
+    res.send({ error: "Please provide an id" });
   } else {
     //  remove eleemnt id id mongodb
     Admin.findOneAndDelete({ _id: _id })
@@ -90,7 +82,7 @@ router.delete('/', async function (req, res) {
         if (item.profileImage) {
           fs.unlink(item.profileImage, (err) => {
             if (err) console.log(err);
-            console.log('successfully deleted profileImage');
+            console.log("successfully deleted profileImage");
           });
         }
         res.sendStatus(200);
@@ -104,11 +96,11 @@ router.delete('/', async function (req, res) {
 });
 
 router.put(
-  '/',
-  upload.fields([{ name: 'profileImage', maxCount: 1 }]),
+  "/",
+  upload.fields([{ name: "profileImage", maxCount: 1 }]),
   async function (req, res) {
-    console.log('Got query:', req.query);
-    console.log('Got body:', req.body);
+    console.log("Got query:", req.query);
+    console.log("Got body:", req.body);
     var _id = req.query._id;
 
     data = await Admin.findOne({
@@ -116,17 +108,20 @@ router.put(
     });
     console.log(data);
     if (!_id) {
-      res.send({ error: 'Please provide an id' });
+      res.send({ error: "Please provide an id" });
     } else if (!_id) {
-      res.send({ error: 'Please provide an id' });
+      res.send({ error: "Please provide an id" });
     } else {
       if (req.files && req.files.profileImage) {
         req.body.profileImage =
-          'uploads/images/' + req.files.profileImage[0].filename;
+          "uploads/images/" + req.files.profileImage[0].filename;
+        req.body.profileImage = await Cloudinary(
+          req.files.profileImage[0].path
+        );
         if (data.profileImage) {
           fs.unlink(data.profileImage, (err) => {
             if (err) console.log(err);
-            console.log('successfully deleted profileImage');
+            console.log("successfully deleted profileImage");
           });
         }
       }

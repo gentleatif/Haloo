@@ -5,6 +5,7 @@ const upload = require("../../../../middleware/multer");
 const fs = require("fs");
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
+const Cloudinary = require("../../../../utils/upload");
 
 router.get("/", async (req, res) => {
   console.log("Got query:", req.query);
@@ -28,13 +29,17 @@ router.post(
     console.log("Got body:", req.body);
 
     try {
-      var image;
+      let image;
       if (req.files && req.files.image) {
-        image = "uploads/images/" + req.files.image[0].filename;
+        // image = "uploads/images/" + req.files.image[0].filename;
+        // cloudinary function call
+        image = await Cloudinary(req.files.image[0].path);
+        console.log("cloudinary offer img ===>", image);
       }
 
       var { title, code, description, discount, startDate, endDate } = req.body;
 
+      console.log(image);
       var offer = new Offer({
         title,
         image,
@@ -93,9 +98,10 @@ router.put(
       data = await Offer.findOne({
         _id: _id,
       });
-
+      // if image already available
       if (req.files && req.files.image) {
         req.body.image = "uploads/images/" + req.files.image[0].filename;
+        req.body.image = await Cloudinary(req.files.categoryImage[0].path);
         if (data.image) {
           fs.unlink(data.image, (err) => {
             if (err) console.log(err);

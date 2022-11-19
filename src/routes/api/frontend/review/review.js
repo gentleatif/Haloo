@@ -3,8 +3,8 @@ const router = express.Router();
 const Review = require("../../../../models/review");
 const Job = require("../../../../models/job");
 const Customer = require("../../../../models/user_management/customer");
-const Vendor = require("../../../../models/user_management/vendor");
 const mongoose = require("mongoose");
+// add all the new changes to gitlab
 
 router.get("/", async function (req, res) {
   // console.log("Got body:", req.body);
@@ -118,7 +118,8 @@ router.get("/", async function (req, res) {
       reviews: reviews,
     };
 
-    res.send({ data: finalData });
+    // res.statsend({ data: finalData });
+    return res.status(200).json({ data: finalData });
   } catch (error) {
     res.sendStatus(400);
   }
@@ -129,17 +130,35 @@ router.post("/customer", async function (req, res) {
   var jobId = req.body.jobId;
   // find customer of
   let job = await Job.findOne({ _id: jobId });
-  let customerId = job.customerId;
+  let customerId = job?.customerId;
+
   var rating = parseFloat(req.body.rating);
   var comment = req.body.comment;
   var reviewFor = "customer";
   if (rating == NaN || rating > 5 || rating < 0) {
-    return res.send({ error: "Invalid rating value" });
+    return res.send({ error: "Invalid rating value", field: "rating" });
   } else if (!jobId) {
-    return res.send({ error: "Add JobId value" });
+    // return res.send({ error: "Add JobId value" });
+    return res.send({ error: "Add JobId value", field: "jobId" });
   } else if (reviewFor != "customer" && reviewFor != "vendor") {
-    return res.send({ error: "Invalid reviewFor value, customer or vendor" });
+    // return res.send({ error: "Invalid reviewFor value, customer or vendor" });
+    return res.send({
+      error: "Invalid reviewFor value, customer or vendor",
+      field: "reviewFor",
+    });
   }
+  // check if review already exists
+  let review = await Review.findOne({
+    customerId: customerId,
+    vendorId: vendorId,
+    jobId: jobId,
+    reviewFor: reviewFor,
+  });
+  if (review) {
+    // return res.send({ error: "Review already exists" });
+    return res.send({ error: "Review already exists", field: "jobId" });
+  }
+
   var item = new Review({
     customerId,
     vendorId,
@@ -152,7 +171,8 @@ router.post("/customer", async function (req, res) {
     .save(item)
     .then(function (item) {
       console.log(item);
-      res.sendStatus(200);
+      // res.sendStatus(200);
+      return res.status(200).json({ data: item });
     })
     .catch((error) => {
       //error handle
@@ -163,21 +183,35 @@ router.post("/customer", async function (req, res) {
 // create --> vendor
 router.post("/vendor", async function (req, res) {
   var customerId = req.customer._id;
-  var jobId = req.body.jobId;
+  var jobId = req.body?.jobId;
   console.log(customerId, jobId);
   // find customer of
   let job = await Job.findOne({ _id: jobId });
-  let vendorId = job.vendorId;
+  let vendorId = job?.vendorId;
   var rating = parseFloat(req.body.rating);
   var comment = req.body.comment;
   var reviewFor = "vendor";
   if (rating == NaN || rating > 5 || rating < 0) {
-    return res.send({ error: "Invalid rating value" });
+    return res.send({ error: "Invalid rating value", field: "rating" });
   } else if (!jobId) {
-    return res.send({ error: "Add JobId value" });
+    return res.send({ error: "Add JobId value", field: "jobId" });
   } else if (reviewFor != "customer" && reviewFor != "vendor") {
-    return res.send({ error: "Invalid reviewFor value, customer or vendor" });
+    return res.send({
+      error: "Invalid reviewFor value, customer or vendor",
+      field: "reviewFor",
+    });
   }
+  // check if review already exists
+  let review = await Review.findOne({
+    customerId: customerId,
+    vendorId: vendorId,
+    jobId: jobId,
+    reviewFor: reviewFor,
+  });
+  if (review) {
+    return res.send({ error: "Review already exists" });
+  }
+
   var item = new Review({
     customerId,
     vendorId,
@@ -190,7 +224,8 @@ router.post("/vendor", async function (req, res) {
     .save(item)
     .then(function (item) {
       console.log(item);
-      res.sendStatus(200);
+      // res.sendStatus(200);
+      return res.status(200).json({ data: item });
     })
     .catch((error) => {
       //error handle
@@ -202,12 +237,12 @@ router.post("/vendor", async function (req, res) {
 router.put("/", async function (req, res) {
   const _id = req.query.id;
   if (!_id) {
-    res.send({ error: "Please provide an id" });
+    res.send({ error: "Please provide an id", field: "id" });
   } else {
     // check rating before submitting
     const { rating, comment } = req.body;
     if (rating == NaN || rating > 5 || rating < 0) {
-      return res.send({ error: "Invalid rating value" });
+      return res.send({ error: "Invalid rating value", field: "rating" });
     }
 
     let item = {
@@ -215,9 +250,14 @@ router.put("/", async function (req, res) {
       comment,
     };
     //  update eleemnt id id mongodb
-    Review.updateOne({ _id: _id }, { $set: item })
+    Review.findOneAndUpdate(
+      { _id: _id },
+      { $set: item },
+      { returnOriginal: false, upsert: true }
+    )
       .then(function (item) {
-        res.sendStatus(200);
+        // res.sendStatus(200);
+        return res.status(200).json({ data: item });
       })
       .catch((error) => {
         //error handle
@@ -232,12 +272,13 @@ router.delete("/", async function (req, res) {
   // console.log('Got body:', req.body);
   var _id = req.query.id;
   if (!_id) {
-    res.send({ error: "Please provide an id" });
+    res.send({ error: "Please provide an id", field: "id" });
   } else {
     //  remove eleemnt id id mongodb
     Review.remove({ _id: _id })
       .then(function (item) {
-        res.sendStatus(200);
+        // res.sendStatus(200);
+        return res.status(200).json({ data: item });
       })
       .catch((error) => {
         //error handle

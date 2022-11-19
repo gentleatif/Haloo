@@ -2,9 +2,6 @@ var mongoose = require("mongoose");
 
 const customerSchema = new mongoose.Schema(
   {
-    // customerName: {
-    //     type: String,
-    // },
     profileImage: {
       type: String,
     },
@@ -32,27 +29,19 @@ const customerSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "cities",
     },
-    phone: {
-      type: String,
-      unique: true,
-      trim: true,
-    },
     stateId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "states",
     },
-    // ageBracket: {
-    //     type: String,
-    // },
+    phone: {
+      type: Number,
+      unique: true,
+      trim: true,
+    },
+    pincode: {
+      type: String,
+    },
 
-    // averageRating: {
-    //     type: Number,
-    //     // default: 20,
-    // },
-    // completedJob: {
-    //     type: Number,
-    //     // default: 10,
-    // },
     completedProfile: {
       type: Boolean,
       default: false,
@@ -84,6 +73,8 @@ const customerSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: "states",
         },
+        // stateId: Number,
+        // cityId: Number,
         addressType: String,
         lat: {
           type: Number,
@@ -93,6 +84,7 @@ const customerSchema = new mongoose.Schema(
         },
       },
     ],
+
     // pincode: {
     //     type: String,
     // },

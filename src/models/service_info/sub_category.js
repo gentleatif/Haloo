@@ -2,14 +2,14 @@ var mongoose = require("mongoose");
 
 const subCategorySchema = new mongoose.Schema(
   {
-    name: {
+    subCategoryName: {
       type: String,
       required: true,
     },
-    category: {
-      type: String,
-      required: true,
-    },
+    // category: {
+    //   type: String,
+    //   required: true,
+    // },
     parentCategoryId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "category",
@@ -27,6 +27,7 @@ const subCategorySchema = new mongoose.Schema(
     },
     price: {
       type: Number,
+      required: true,
     },
   },
   {

@@ -62,7 +62,9 @@ router.get("/", async (req, res) => {
   if (req.query.online) {
     var online = req.query.online;
     if (online != "true" && online != "false") {
-      return res.status(400).send({ error: "online must be bool true/false" });
+      return res
+        .status(400)
+        .send({ error: "online must be bool true/false", field: "online" });
     }
     if (online == "true") {
       req.query.online = true;
@@ -248,7 +250,7 @@ router.get("/", async (req, res) => {
       }
     }
 
-    res.send({ data: data });
+    res.status(200).send({ data: data });
   } catch (error) {
     console.log(error);
     res.status(400).send({ error: error });

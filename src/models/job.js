@@ -74,6 +74,10 @@ const jobSchema = new mongoose.Schema(
     razorPayOrderId: {
       type: String,
     },
+    isAddedbyAdmin: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

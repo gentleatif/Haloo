@@ -8,10 +8,15 @@ const getNextSequence = require("../../../../utils/counter");
 const upload = require("../../../../middleware/multer").single("categoryImage");
 const multer = require("multer");
 
+const Cloudinary = require("../../../../utils/upload");
+
 router.get("/", async (req, res) => {
-  console.log("Got query: =================>", req.query);
   try {
     const categoryName = req.query.categoryName;
+    if (req.query._id) {
+      const category = await Category.findById(req.query._id);
+      return res.status(200).send({ data: category });
+    }
     var categories;
     if (categoryName != undefined) {
       var query = { categoryName: { $regex: new RegExp(categoryName, "i") } };
@@ -19,10 +24,10 @@ router.get("/", async (req, res) => {
     } else {
       categories = await Category.find({});
     }
-    res.send({ data: categories });
+    return res.status(200).send({ data: categories });
   } catch (error) {
     console.log(error);
-    res.status(400).send({ error: "server error occur" });
+    return res.status(400).send({ error: "server error occur" });
   }
 });
 
@@ -57,6 +62,7 @@ router.post("/", async (req, res) => {
     console.log("Got file:", req.file);
     if (req.file) {
       categoryImage = "uploads/images/categoryImage/" + req.file.filename;
+      categoryImage = Cloudinary(req.file.path);
     }
 
     if (!categoryName) {
@@ -86,7 +92,8 @@ router.post("/", async (req, res) => {
       .save(item)
       .then(function (item) {
         // console.log(item);
-        res.sendStatus(200);
+        // res.sendStatus(200);
+        return res.status(200).json({ data: item });
       })
       .catch((error) => {
         //error handle
