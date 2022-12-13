@@ -706,4 +706,22 @@ router.delete("/deleteaddress", async function (req, res) {
     });
 });
 
+router.delete("/deleteuser", async function (req, res) {
+  console.log("user details", req.customer);
+  console.log("user details", req.customer);
+  let _id = req.customer._id;
+
+  Customer.deleteOne({
+    _id: _id
+  })
+    .then(function (item) {
+      return res.status(200).json({ data: "user deleted successfully" });
+    })
+    .catch((error) => {
+      //error handle
+      console.log(error);
+      res.status(400).send({ error: error });
+    });
+});
+
 module.exports = router;

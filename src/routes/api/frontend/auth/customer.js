@@ -69,7 +69,8 @@ router.post("/generate_otp", async (req, res) => {
 });
 
 router.post("/verify_otp", async (req, res) => {
-  let { id, otp, type } = req.body;
+  // let { id, otp, type } = req.body;
+  let { id, otp } = req.body;
 
   if (!id) {
     return res
@@ -95,14 +96,14 @@ router.post("/verify_otp", async (req, res) => {
     }
     //
 
-    if (!customer.type) {
-      if (!type || !(type === "vendor" || type === "customer")) {
-        return res
-          .status(400)
-          .send({ error: "Type is required (vendor/customer)", field: "type" });
-      }
-      customer.type = type;
-    }
+    // if (!customer.type) {
+    //   if (!type || !(type === "vendor" || type === "customer")) {
+    //     return res
+    //       .status(400)
+    //       .send({ error: "Type is required (vendor/customer)", field: "type" });
+    //   }
+    //   customer.type = type;
+    // }
     // check otp generated
     if (!(customer.otp || customer.otpExpiry)) {
       return res.status(400).json({ error: "OTP not generated", field: "otp" });

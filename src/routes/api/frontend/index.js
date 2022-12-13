@@ -14,6 +14,7 @@ module.exports = function () {
   router.use("/contactus", customer_auth, require("./contactus")());
   router.use("/payment", customer_auth, require("./payment")());
   router.use("/notification", customer_auth, require("./notification")());
+  router.use("/staticfile", require("./staticfile")());
 
   return router;
 };
