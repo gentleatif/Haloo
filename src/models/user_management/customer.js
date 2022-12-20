@@ -33,6 +33,7 @@ const customerSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "states",
     },
+
     phone: {
       type: Number,
       unique: true,
@@ -107,6 +108,7 @@ const customerSchema = new mongoose.Schema(
     countryCode: {
       type: String,
     },
+
     jobSkills: [
       {
         type: mongoose.Schema.Types.ObjectId,

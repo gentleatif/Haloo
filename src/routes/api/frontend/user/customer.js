@@ -15,7 +15,6 @@ const multer = require("multer");
 const Cloudinary = require("../../../../utils/upload");
 
 router.get("/", async (req, res) => {
-  // console.log(...req.query);
   console.log("user details", req.user);
   console.log("Got query:", req.query);
   if (!req.customer._id) {
@@ -28,10 +27,27 @@ router.get("/", async (req, res) => {
     req.customer._id = ObjectId(req.customer._id);
   }
   try {
-    // data = await Customer.find(findQuery);
     data = await Customer.aggregate([
       {
         $match: { ...req.query, _id: req.customer._id },
+      },
+
+      { $unwind: "$address" },
+      {
+        $lookup: {
+          from: "states",
+          localField: "address.stateId",
+          foreignField: "_id",
+          as: "address.stateDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "cities",
+          localField: "address.cityId",
+          foreignField: "_id",
+          as: "address.cityDetails",
+        },
       },
       {
         $lookup: {
@@ -41,22 +57,7 @@ router.get("/", async (req, res) => {
           as: "jobDetails",
         },
       },
-      // {
-      //     $lookup: {
-      //         from: 'states',
-      //         localField: 'stateId',
-      //         foreignField: '_id',
-      //         as: 'stateDetails'
-      //     }
-      // },
-      // {
-      //     $lookup: {
-      //         from: 'cities',
-      //         localField: 'cityId',
-      //         foreignField: '_id',
-      //         as: 'cityDetails'
-      //     }
-      // },
+
       {
         $lookup: {
           from: "subcategories",
@@ -65,6 +66,7 @@ router.get("/", async (req, res) => {
           as: "jobSkills",
         },
       },
+
       {
         $lookup: {
           from: "reviews",
@@ -87,6 +89,7 @@ router.get("/", async (req, res) => {
       {
         $addFields: { noOfJobs: { $size: "$jobDetails" } },
       },
+
       {
         $project: {
           jobDetails: 0,
@@ -96,6 +99,12 @@ router.get("/", async (req, res) => {
           otpExpiry: 0,
           createdAt: 0,
           updatedAt: 0,
+        },
+      },
+      {
+        $project: {
+          "address.stateId": 0,
+          "address.cityId": 0,
         },
       },
     ]);
@@ -712,7 +721,7 @@ router.delete("/deleteuser", async function (req, res) {
   let _id = req.customer._id;
 
   Customer.deleteOne({
-    _id: _id
+    _id: _id,
   })
     .then(function (item) {
       return res.status(200).json({ data: "user deleted successfully" });

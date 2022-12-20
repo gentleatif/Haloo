@@ -31,7 +31,6 @@ function toRad(Value) {
 
 router.get("/", async (req, res) => {
   console.log("Got query:", req.query);
-  console.log("below is your columnName and columnValue");
 
   let { columnName, sort, lat, lng } = req.query;
   // delete lat and lng from query
@@ -78,9 +77,6 @@ router.get("/", async (req, res) => {
     columnName: sort,
   };
 
-  console.log("sorting method ===>", columnName, sort);
-
-  console.log("sortMethod =====>", sortMethod);
   try {
     if (req.query.jobSkillId) {
       req.query.jobSkills = { $in: [ObjectId(req.query.jobSkillId)] };
@@ -95,6 +91,24 @@ router.get("/", async (req, res) => {
       {
         $match: { ...req.query, type: "vendor" },
       },
+      { $unwind: "$address" },
+      {
+        $lookup: {
+          from: "states",
+          localField: "address.stateId",
+          foreignField: "_id",
+          as: "address.stateDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "cities",
+          localField: "address.cityId",
+          foreignField: "_id",
+          as: "address.cityDetails",
+        },
+      },
+      // return only
       {
         $lookup: {
           from: "jobs",
@@ -143,6 +157,15 @@ router.get("/", async (req, res) => {
           as: "reviewDetails",
         },
       },
+      {
+        $lookup: {
+          from: "subcategories",
+          localField: "jobSkills",
+          foreignField: "_id",
+          as: "jobSkills",
+        },
+      },
+
       // run for loop and return reviewDetails rating field
       {
         $addFields: {
@@ -177,8 +200,14 @@ router.get("/", async (req, res) => {
       {
         $sort: sortMethod,
       },
+      // remove stateId and cityId from address
+      {
+        $project: {
+          "address.stateId": 0,
+          "address.cityId": 0,
+        },
+      },
     ]);
-    console.log("sorting method ===>", columnName, sort);
 
     // console.log('Got data:', data);
 
