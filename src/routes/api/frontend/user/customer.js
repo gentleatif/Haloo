@@ -14,7 +14,6 @@ const ObjectId = mongoose.Types.ObjectId;
 const multer = require("multer");
 const Cloudinary = require("../../../../utils/upload");
 
-// comment
 router.get("/", async (req, res) => {
   console.log("user details", req.user);
   console.log("Got query:", req.query);
